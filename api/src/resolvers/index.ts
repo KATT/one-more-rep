@@ -1,8 +1,8 @@
-import { Query } from './Query'
-import { auth } from './Mutation/auth'
-import { post } from './Mutation/post'
-import { AuthPayload } from './AuthPayload'
-import {extractFragmentReplacements} from 'prisma-binding'
+import { extractFragmentReplacements } from 'prisma-binding';
+import { AuthPayload } from './AuthPayload';
+import { auth } from './Mutation/auth';
+import { post } from './Mutation/post';
+import { Query } from './Query';
 
 export const resolvers = {
   Query,
@@ -18,10 +18,9 @@ export const resolvers = {
         return {
           name: source.categoryName,
           popularity: Math.random(),
-        }
-      }
-    }
-  }
-}
-export const fragmentReplacements = extractFragmentReplacements(resolvers)
-
+        };
+      },
+    },
+  },
+};
+export const fragmentReplacements = extractFragmentReplacements(resolvers);

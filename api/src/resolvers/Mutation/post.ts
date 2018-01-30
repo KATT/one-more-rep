@@ -1,4 +1,4 @@
-import { getUserId, Context } from '../../utils';
+import { Context, getUserId } from '../../utils';
 
 export const post = {
   async createDraft(parent, { title, text }, ctx: Context, info) {
@@ -15,7 +15,7 @@ export const post = {
           categoryName: 'test',
         },
       },
-      info
+      info,
     );
   },
 
@@ -31,7 +31,7 @@ export const post = {
           },
         },
       },
-      info
+      info,
     );
   },
 
@@ -50,7 +50,7 @@ export const post = {
         where: { id },
         data: { isPublished: true },
       },
-      info
+      info,
     );
   },
 
