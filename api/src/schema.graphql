@@ -1,0 +1,57 @@
+# import UserWhereInput, User from "./generated/prisma.graphql"
+
+type Category {
+  name: String!
+  popularity: Float
+}
+
+type Post implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isPublished: Boolean!
+  title: String!
+  text: String!
+  author(where: UserWhereInput): User!
+  canMyIdBeReceived: String!
+  rewardId: String!
+  myId: String!
+  uuid: String!
+
+  category: Category!
+}
+
+type Query {
+  feed: [Post!]!
+  drafts: [Post!]!
+  post(id: ID!): Post!
+  me: User
+}
+
+input UserPostCreateInput {
+  isPublished: Boolean
+  title: String!
+  text: String!
+  categoryName: String!
+}
+
+type Mutation {
+  signup(email: String!, password: String!, name: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+  createDraft(title: String!, text: String!): Post!
+  createUserPost(data: UserPostCreateInput): Post!
+  publish(id: ID!): Post!
+  deletePost(id: ID!): Post!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  posts: [Post!]!
+}
