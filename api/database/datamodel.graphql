@@ -1,3 +1,5 @@
+# playground: https://graphqlbin.com/qxQvfk
+
 type Post {
   id: ID! @unique
   createdAt: DateTime!
@@ -17,11 +19,17 @@ type User {
   posts: [Post!]!
 }
 
+enum WeightUnit {
+  Pound
+  Kilogram
+}
+
 enum RepUnit {
   Kilometre
   Mile
   Minute
   Second
+  Repetition
   UntilFailure
 }
 
@@ -34,12 +42,34 @@ enum IntensityUnit {
   Kilogram
 }
 
+enum Locale {
+  En_GB
+}
+
+type TextTranslation {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  # en_GB
+  locale: Locale!
+  text: String!
+}
+
+type Text {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  translations: [TextTranslation!]!
+}
+
 type Exercise {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
   # 'squat'
-  name: String
+  name: Text!
+  slug: String! @unique
 }
 
 type ExerciseSet {
@@ -66,4 +96,33 @@ type WorkoutSession {
   # 5x5x5 Workout A
   name: String!
   sets: [ExerciseSet!]!
+}
+
+type WorkoutProgramSettings {
+  weightUnit: WeightUnit!
+}
+
+enum WorkoutRuleHook {
+  AfterSuccessfulSet
+}
+
+type WorkoutRule {
+  hook: WorkoutRuleHook
+  num: Int! @default(value: "1")
+  exercise: Exercise!
+  # TODO: model how to apply changes
+  # increaseIntensity: 2.5
+}
+
+type WorkoutProgram {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  # StrongLifts 5x5
+  name: String!
+
+  settings: WorkoutProgramSettings!
+  workouts: [WorkoutSession!]!
+  rules: [WorkoutRule!]!
 }

@@ -13,7 +13,8 @@ type Exercise implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name: String
+  name(where: TextWhereInput): Text!
+  slug: String!
 }
 
 type ExerciseSet implements Node {
@@ -38,12 +39,37 @@ type Post implements Node {
   categoryName: String!
 }
 
+type Text implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  translations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation!]
+}
+
+type TextTranslation implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  text: String!
+}
+
 type User implements Node {
   id: ID!
   email: String!
   password: String!
   name: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+}
+
+type WorkoutProgram implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  settings(where: WorkoutProgramSettingsWhereInput): WorkoutProgramSettings!
+  workouts(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession!]
+  rules(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutRule!]
 }
 
 type WorkoutSession implements Node {
@@ -71,7 +97,27 @@ type AggregatePost {
   count: Int!
 }
 
+type AggregateText {
+  count: Int!
+}
+
+type AggregateTextTranslation {
+  count: Int!
+}
+
 type AggregateUser {
+  count: Int!
+}
+
+type AggregateWorkoutProgram {
+  count: Int!
+}
+
+type AggregateWorkoutProgramSettings {
+  count: Int!
+}
+
+type AggregateWorkoutRule {
   count: Int!
 }
 
@@ -92,7 +138,8 @@ type ExerciseConnection {
 }
 
 input ExerciseCreateInput {
-  name: String
+  slug: String!
+  name: TextCreateOneInput!
 }
 
 input ExerciseCreateOneInput {
@@ -112,15 +159,15 @@ enum ExerciseOrderByInput {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  name_ASC
-  name_DESC
+  slug_ASC
+  slug_DESC
 }
 
 type ExercisePreviousValues {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name: String
+  slug: String!
 }
 
 type ExerciseSetConnection {
@@ -288,7 +335,8 @@ input ExerciseSubscriptionWhereInput {
 }
 
 input ExerciseUpdateInput {
-  name: String
+  slug: String
+  name: TextUpdateOneInput
 }
 
 input ExerciseUpdateOneInput {
@@ -331,24 +379,26 @@ input ExerciseWhereInput {
   updatedAt_lte: DateTime
   updatedAt_gt: DateTime
   updatedAt_gte: DateTime
-  name: String
-  name_not: String
-  name_in: [String!]
-  name_not_in: [String!]
-  name_lt: String
-  name_lte: String
-  name_gt: String
-  name_gte: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
+  slug: String
+  slug_not: String
+  slug_in: [String!]
+  slug_not_in: [String!]
+  slug_lt: String
+  slug_lte: String
+  slug_gt: String
+  slug_gte: String
+  slug_contains: String
+  slug_not_contains: String
+  slug_starts_with: String
+  slug_not_starts_with: String
+  slug_ends_with: String
+  slug_not_ends_with: String
+  name: TextWhereInput
 }
 
 input ExerciseWhereUniqueInput {
   id: ID
+  slug: String
 }
 
 enum IntensityUnit {
@@ -358,39 +408,67 @@ enum IntensityUnit {
   Kilogram
 }
 
+enum Locale {
+  En_GB
+}
+
 scalar Long
 
 type Mutation {
   createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
+  createTextTranslation(data: TextTranslationCreateInput!): TextTranslation!
+  createText(data: TextCreateInput!): Text!
   createExercise(data: ExerciseCreateInput!): Exercise!
   createExerciseSet(data: ExerciseSetCreateInput!): ExerciseSet!
   createWorkoutSession(data: WorkoutSessionCreateInput!): WorkoutSession!
+  createWorkoutProgramSettings(data: WorkoutProgramSettingsCreateInput!): WorkoutProgramSettings!
+  createWorkoutRule(data: WorkoutRuleCreateInput!): WorkoutRule!
+  createWorkoutProgram(data: WorkoutProgramCreateInput!): WorkoutProgram!
   updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateTextTranslation(data: TextTranslationUpdateInput!, where: TextTranslationWhereUniqueInput!): TextTranslation
+  updateText(data: TextUpdateInput!, where: TextWhereUniqueInput!): Text
   updateExercise(data: ExerciseUpdateInput!, where: ExerciseWhereUniqueInput!): Exercise
   updateExerciseSet(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereUniqueInput!): ExerciseSet
   updateWorkoutSession(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  updateWorkoutProgram(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   deletePost(where: PostWhereUniqueInput!): Post
   deleteUser(where: UserWhereUniqueInput!): User
+  deleteTextTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
+  deleteText(where: TextWhereUniqueInput!): Text
   deleteExercise(where: ExerciseWhereUniqueInput!): Exercise
   deleteExerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   deleteWorkoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  deleteWorkoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertTextTranslation(where: TextTranslationWhereUniqueInput!, create: TextTranslationCreateInput!, update: TextTranslationUpdateInput!): TextTranslation!
+  upsertText(where: TextWhereUniqueInput!, create: TextCreateInput!, update: TextUpdateInput!): Text!
   upsertExercise(where: ExerciseWhereUniqueInput!, create: ExerciseCreateInput!, update: ExerciseUpdateInput!): Exercise!
   upsertExerciseSet(where: ExerciseSetWhereUniqueInput!, create: ExerciseSetCreateInput!, update: ExerciseSetUpdateInput!): ExerciseSet!
   upsertWorkoutSession(where: WorkoutSessionWhereUniqueInput!, create: WorkoutSessionCreateInput!, update: WorkoutSessionUpdateInput!): WorkoutSession!
+  upsertWorkoutProgram(where: WorkoutProgramWhereUniqueInput!, create: WorkoutProgramCreateInput!, update: WorkoutProgramUpdateInput!): WorkoutProgram!
   updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  updateManyTextTranslations(data: TextTranslationUpdateInput!, where: TextTranslationWhereInput!): BatchPayload!
+  updateManyTexts(data: TextUpdateInput!, where: TextWhereInput!): BatchPayload!
   updateManyExercises(data: ExerciseUpdateInput!, where: ExerciseWhereInput!): BatchPayload!
   updateManyExerciseSets(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereInput!): BatchPayload!
   updateManyWorkoutSessions(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereInput!): BatchPayload!
+  updateManyWorkoutProgramSettingses(data: WorkoutProgramSettingsUpdateInput!, where: WorkoutProgramSettingsWhereInput!): BatchPayload!
+  updateManyWorkoutRules(data: WorkoutRuleUpdateInput!, where: WorkoutRuleWhereInput!): BatchPayload!
+  updateManyWorkoutPrograms(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereInput!): BatchPayload!
   deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyTextTranslations(where: TextTranslationWhereInput!): BatchPayload!
+  deleteManyTexts(where: TextWhereInput!): BatchPayload!
   deleteManyExercises(where: ExerciseWhereInput!): BatchPayload!
   deleteManyExerciseSets(where: ExerciseSetWhereInput!): BatchPayload!
   deleteManyWorkoutSessions(where: WorkoutSessionWhereInput!): BatchPayload!
+  deleteManyWorkoutProgramSettingses(where: WorkoutProgramSettingsWhereInput!): BatchPayload!
+  deleteManyWorkoutRules(where: WorkoutRuleWhereInput!): BatchPayload!
+  deleteManyWorkoutPrograms(where: WorkoutProgramWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -607,19 +685,32 @@ input PostWhereUniqueInput {
 type Query {
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  textTranslations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation]!
+  texts(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Text]!
   exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise]!
   exerciseSets(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ExerciseSet]!
   workoutSessions(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession]!
+  workoutProgramSettingses(where: WorkoutProgramSettingsWhereInput, orderBy: WorkoutProgramSettingsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgramSettings]!
+  workoutRules(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutRule]!
+  workoutPrograms(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgram]!
   post(where: PostWhereUniqueInput!): Post
   user(where: UserWhereUniqueInput!): User
+  textTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
+  text(where: TextWhereUniqueInput!): Text
   exercise(where: ExerciseWhereUniqueInput!): Exercise
   exerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   workoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  workoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  textTranslationsConnection(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextTranslationConnection!
+  textsConnection(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextConnection!
   exercisesConnection(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseConnection!
   exerciseSetsConnection(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseSetConnection!
   workoutSessionsConnection(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutSessionConnection!
+  workoutProgramSettingsesConnection(where: WorkoutProgramSettingsWhereInput, orderBy: WorkoutProgramSettingsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutProgramSettingsConnection!
+  workoutRulesConnection(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutRuleConnection!
+  workoutProgramsConnection(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutProgramConnection!
   node(id: ID!): Node
 }
 
@@ -628,15 +719,254 @@ enum RepUnit {
   Mile
   Minute
   Second
+  Repetition
   UntilFailure
 }
 
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  textTranslation(where: TextTranslationSubscriptionWhereInput): TextTranslationSubscriptionPayload
+  text(where: TextSubscriptionWhereInput): TextSubscriptionPayload
   exercise(where: ExerciseSubscriptionWhereInput): ExerciseSubscriptionPayload
   exerciseSet(where: ExerciseSetSubscriptionWhereInput): ExerciseSetSubscriptionPayload
   workoutSession(where: WorkoutSessionSubscriptionWhereInput): WorkoutSessionSubscriptionPayload
+  workoutProgramSettings(where: WorkoutProgramSettingsSubscriptionWhereInput): WorkoutProgramSettingsSubscriptionPayload
+  workoutRule(where: WorkoutRuleSubscriptionWhereInput): WorkoutRuleSubscriptionPayload
+  workoutProgram(where: WorkoutProgramSubscriptionWhereInput): WorkoutProgramSubscriptionPayload
+}
+
+type TextConnection {
+  pageInfo: PageInfo!
+  edges: [TextEdge]!
+  aggregate: AggregateText!
+}
+
+input TextCreateInput {
+  translations: TextTranslationCreateManyInput
+}
+
+input TextCreateOneInput {
+  create: TextCreateInput
+  connect: TextWhereUniqueInput
+}
+
+type TextEdge {
+  node: Text!
+  cursor: String!
+}
+
+enum TextOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type TextPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TextSubscriptionPayload {
+  mutation: MutationType!
+  node: Text
+  updatedFields: [String!]
+  previousValues: TextPreviousValues
+}
+
+input TextSubscriptionWhereInput {
+  AND: [TextSubscriptionWhereInput!]
+  OR: [TextSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: TextWhereInput
+}
+
+type TextTranslationConnection {
+  pageInfo: PageInfo!
+  edges: [TextTranslationEdge]!
+  aggregate: AggregateTextTranslation!
+}
+
+input TextTranslationCreateInput {
+  locale: Locale!
+  text: String!
+}
+
+input TextTranslationCreateManyInput {
+  create: [TextTranslationCreateInput!]
+  connect: [TextTranslationWhereUniqueInput!]
+}
+
+type TextTranslationEdge {
+  node: TextTranslation!
+  cursor: String!
+}
+
+enum TextTranslationOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  locale_ASC
+  locale_DESC
+  text_ASC
+  text_DESC
+}
+
+type TextTranslationPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  text: String!
+}
+
+type TextTranslationSubscriptionPayload {
+  mutation: MutationType!
+  node: TextTranslation
+  updatedFields: [String!]
+  previousValues: TextTranslationPreviousValues
+}
+
+input TextTranslationSubscriptionWhereInput {
+  AND: [TextTranslationSubscriptionWhereInput!]
+  OR: [TextTranslationSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: TextTranslationWhereInput
+}
+
+input TextTranslationUpdateInput {
+  locale: Locale
+  text: String
+}
+
+input TextTranslationUpdateManyInput {
+  create: [TextTranslationCreateInput!]
+  connect: [TextTranslationWhereUniqueInput!]
+  disconnect: [TextTranslationWhereUniqueInput!]
+  delete: [TextTranslationWhereUniqueInput!]
+}
+
+input TextTranslationWhereInput {
+  AND: [TextTranslationWhereInput!]
+  OR: [TextTranslationWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  locale: Locale
+  locale_not: Locale
+  locale_in: [Locale!]
+  locale_not_in: [Locale!]
+  text: String
+  text_not: String
+  text_in: [String!]
+  text_not_in: [String!]
+  text_lt: String
+  text_lte: String
+  text_gt: String
+  text_gte: String
+  text_contains: String
+  text_not_contains: String
+  text_starts_with: String
+  text_not_starts_with: String
+  text_ends_with: String
+  text_not_ends_with: String
+}
+
+input TextTranslationWhereUniqueInput {
+  id: ID
+}
+
+input TextUpdateInput {
+  translations: TextTranslationUpdateManyInput
+}
+
+input TextUpdateOneInput {
+  create: TextCreateInput
+  connect: TextWhereUniqueInput
+  disconnect: TextWhereUniqueInput
+  delete: TextWhereUniqueInput
+}
+
+input TextWhereInput {
+  AND: [TextWhereInput!]
+  OR: [TextWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  translations_every: TextTranslationWhereInput
+  translations_some: TextTranslationWhereInput
+  translations_none: TextTranslationWhereInput
+}
+
+input TextWhereUniqueInput {
+  id: ID
 }
 
 type UserConnection {
@@ -809,6 +1139,297 @@ input UserWhereUniqueInput {
   email: String
 }
 
+enum WeightUnit {
+  Pound
+  Kilogram
+}
+
+type WorkoutProgramConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutProgramEdge]!
+  aggregate: AggregateWorkoutProgram!
+}
+
+input WorkoutProgramCreateInput {
+  name: String!
+  settings: WorkoutProgramSettingsCreateOneInput!
+  workouts: WorkoutSessionCreateManyInput
+  rules: WorkoutRuleCreateManyInput
+}
+
+type WorkoutProgramEdge {
+  node: WorkoutProgram!
+  cursor: String!
+}
+
+enum WorkoutProgramOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  name_ASC
+  name_DESC
+}
+
+type WorkoutProgramPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+}
+
+type WorkoutProgramSettings {
+  weightUnit: WeightUnit!
+}
+
+type WorkoutProgramSettingsConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutProgramSettingsEdge]!
+  aggregate: AggregateWorkoutProgramSettings!
+}
+
+input WorkoutProgramSettingsCreateInput {
+  weightUnit: WeightUnit!
+}
+
+input WorkoutProgramSettingsCreateOneInput {
+  create: WorkoutProgramSettingsCreateInput
+}
+
+type WorkoutProgramSettingsEdge {
+  node: WorkoutProgramSettings!
+  cursor: String!
+}
+
+enum WorkoutProgramSettingsOrderByInput {
+  weightUnit_ASC
+  weightUnit_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type WorkoutProgramSettingsPreviousValues {
+  weightUnit: WeightUnit!
+}
+
+type WorkoutProgramSettingsSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutProgramSettings
+  updatedFields: [String!]
+  previousValues: WorkoutProgramSettingsPreviousValues
+}
+
+input WorkoutProgramSettingsSubscriptionWhereInput {
+  AND: [WorkoutProgramSettingsSubscriptionWhereInput!]
+  OR: [WorkoutProgramSettingsSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutProgramSettingsWhereInput
+}
+
+input WorkoutProgramSettingsUpdateInput {
+  weightUnit: WeightUnit
+}
+
+input WorkoutProgramSettingsUpdateOneInput {
+  create: WorkoutProgramSettingsCreateInput
+}
+
+input WorkoutProgramSettingsWhereInput {
+  AND: [WorkoutProgramSettingsWhereInput!]
+  OR: [WorkoutProgramSettingsWhereInput!]
+  weightUnit: WeightUnit
+  weightUnit_not: WeightUnit
+  weightUnit_in: [WeightUnit!]
+  weightUnit_not_in: [WeightUnit!]
+}
+
+type WorkoutProgramSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutProgram
+  updatedFields: [String!]
+  previousValues: WorkoutProgramPreviousValues
+}
+
+input WorkoutProgramSubscriptionWhereInput {
+  AND: [WorkoutProgramSubscriptionWhereInput!]
+  OR: [WorkoutProgramSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutProgramWhereInput
+}
+
+input WorkoutProgramUpdateInput {
+  name: String
+  settings: WorkoutProgramSettingsUpdateOneInput
+  workouts: WorkoutSessionUpdateManyInput
+  rules: WorkoutRuleUpdateManyInput
+}
+
+input WorkoutProgramWhereInput {
+  AND: [WorkoutProgramWhereInput!]
+  OR: [WorkoutProgramWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  settings: WorkoutProgramSettingsWhereInput
+  workouts_every: WorkoutSessionWhereInput
+  workouts_some: WorkoutSessionWhereInput
+  workouts_none: WorkoutSessionWhereInput
+  rules_every: WorkoutRuleWhereInput
+  rules_some: WorkoutRuleWhereInput
+  rules_none: WorkoutRuleWhereInput
+}
+
+input WorkoutProgramWhereUniqueInput {
+  id: ID
+}
+
+type WorkoutRule {
+  hook: WorkoutRuleHook
+  num: Int!
+  exercise(where: ExerciseWhereInput): Exercise!
+}
+
+type WorkoutRuleConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutRuleEdge]!
+  aggregate: AggregateWorkoutRule!
+}
+
+input WorkoutRuleCreateInput {
+  hook: WorkoutRuleHook
+  num: Int
+  exercise: ExerciseCreateOneInput!
+}
+
+input WorkoutRuleCreateManyInput {
+  create: [WorkoutRuleCreateInput!]
+}
+
+type WorkoutRuleEdge {
+  node: WorkoutRule!
+  cursor: String!
+}
+
+enum WorkoutRuleHook {
+  AfterSuccessfulSet
+}
+
+enum WorkoutRuleOrderByInput {
+  hook_ASC
+  hook_DESC
+  num_ASC
+  num_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type WorkoutRulePreviousValues {
+  hook: WorkoutRuleHook
+  num: Int!
+}
+
+type WorkoutRuleSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutRule
+  updatedFields: [String!]
+  previousValues: WorkoutRulePreviousValues
+}
+
+input WorkoutRuleSubscriptionWhereInput {
+  AND: [WorkoutRuleSubscriptionWhereInput!]
+  OR: [WorkoutRuleSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutRuleWhereInput
+}
+
+input WorkoutRuleUpdateInput {
+  hook: WorkoutRuleHook
+  num: Int
+  exercise: ExerciseUpdateOneInput
+}
+
+input WorkoutRuleUpdateManyInput {
+  create: [WorkoutRuleCreateInput!]
+}
+
+input WorkoutRuleWhereInput {
+  AND: [WorkoutRuleWhereInput!]
+  OR: [WorkoutRuleWhereInput!]
+  hook: WorkoutRuleHook
+  hook_not: WorkoutRuleHook
+  hook_in: [WorkoutRuleHook!]
+  hook_not_in: [WorkoutRuleHook!]
+  num: Int
+  num_not: Int
+  num_in: [Int!]
+  num_not_in: [Int!]
+  num_lt: Int
+  num_lte: Int
+  num_gt: Int
+  num_gte: Int
+  exercise: ExerciseWhereInput
+}
+
 type WorkoutSessionConnection {
   pageInfo: PageInfo!
   edges: [WorkoutSessionEdge]!
@@ -818,6 +1439,11 @@ type WorkoutSessionConnection {
 input WorkoutSessionCreateInput {
   name: String!
   sets: ExerciseSetCreateManyInput
+}
+
+input WorkoutSessionCreateManyInput {
+  create: [WorkoutSessionCreateInput!]
+  connect: [WorkoutSessionWhereUniqueInput!]
 }
 
 type WorkoutSessionEdge {
@@ -863,6 +1489,13 @@ input WorkoutSessionSubscriptionWhereInput {
 input WorkoutSessionUpdateInput {
   name: String
   sets: ExerciseSetUpdateManyInput
+}
+
+input WorkoutSessionUpdateManyInput {
+  create: [WorkoutSessionCreateInput!]
+  connect: [WorkoutSessionWhereUniqueInput!]
+  disconnect: [WorkoutSessionWhereUniqueInput!]
+  delete: [WorkoutSessionWhereUniqueInput!]
 }
 
 input WorkoutSessionWhereInput {
@@ -922,6 +1555,21 @@ input WorkoutSessionWhereUniqueInput {
 }
 `
 
+export type MutationType = 
+  'CREATED' |
+  'UPDATED' |
+  'DELETED'
+
+export type ExerciseOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'slug_ASC' |
+  'slug_DESC'
+
 export type UserOrderByInput = 
   'id_ASC' |
   'id_DESC' |
@@ -936,44 +1584,17 @@ export type UserOrderByInput =
   'createdAt_ASC' |
   'createdAt_DESC'
 
-export type ExerciseOrderByInput = 
+export type WorkoutRuleOrderByInput = 
+  'hook_ASC' |
+  'hook_DESC' |
+  'num_ASC' |
+  'num_DESC' |
   'id_ASC' |
   'id_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC' |
   'updatedAt_ASC' |
   'updatedAt_DESC' |
-  'name_ASC' |
-  'name_DESC'
-
-export type RepUnit = 
-  'Kilometre' |
-  'Mile' |
-  'Minute' |
-  'Second' |
-  'UntilFailure'
-
-export type PostOrderByInput = 
-  'id_ASC' |
-  'id_DESC' |
   'createdAt_ASC' |
-  'createdAt_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'isPublished_ASC' |
-  'isPublished_DESC' |
-  'title_ASC' |
-  'title_DESC' |
-  'text_ASC' |
-  'text_DESC' |
-  'categoryName_ASC' |
-  'categoryName_DESC'
-
-export type IntensityUnit = 
-  'KilometrePerHour' |
-  'MilePerHour' |
-  'Pound' |
-  'Kilogram'
+  'createdAt_DESC'
 
 export type ExerciseSetOrderByInput = 
   'id_ASC' |
@@ -991,6 +1612,63 @@ export type ExerciseSetOrderByInput =
   'intensityUnit_ASC' |
   'intensityUnit_DESC'
 
+export type PostOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'isPublished_ASC' |
+  'isPublished_DESC' |
+  'title_ASC' |
+  'title_DESC' |
+  'text_ASC' |
+  'text_DESC' |
+  'categoryName_ASC' |
+  'categoryName_DESC'
+
+export type Locale = 
+  'En_GB'
+
+export type WeightUnit = 
+  'Pound' |
+  'Kilogram'
+
+export type TextOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC'
+
+export type RepUnit = 
+  'Kilometre' |
+  'Mile' |
+  'Minute' |
+  'Second' |
+  'Repetition' |
+  'UntilFailure'
+
+export type IntensityUnit = 
+  'KilometrePerHour' |
+  'MilePerHour' |
+  'Pound' |
+  'Kilogram'
+
+export type TextTranslationOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'locale_ASC' |
+  'locale_DESC' |
+  'text_ASC' |
+  'text_DESC'
+
 export type WorkoutSessionOrderByInput = 
   'id_ASC' |
   'id_DESC' |
@@ -1001,17 +1679,47 @@ export type WorkoutSessionOrderByInput =
   'name_ASC' |
   'name_DESC'
 
-export type MutationType = 
-  'CREATED' |
-  'UPDATED' |
-  'DELETED'
+export type WorkoutProgramSettingsOrderByInput = 
+  'weightUnit_ASC' |
+  'weightUnit_DESC' |
+  'id_ASC' |
+  'id_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC'
 
-export interface PostCreateInput {
-  isPublished?: Boolean
-  title: String
-  text: String
-  categoryName: String
-  author: UserCreateOneWithoutPostsInput
+export type WorkoutRuleHook = 
+  'AfterSuccessfulSet'
+
+export type WorkoutProgramOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'name_ASC' |
+  'name_DESC'
+
+export interface ExerciseSetWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface ExerciseSetCreateInput {
+  reps: Int
+  repsUnit: RepUnit
+  intensity?: Int
+  intensityUnit?: IntensityUnit
+  exercise: ExerciseCreateOneInput
+}
+
+export interface ExerciseSetUpdateInput {
+  reps?: Int
+  repsUnit?: RepUnit
+  intensity?: Int
+  intensityUnit?: IntensityUnit
+  exercise?: ExerciseUpdateOneInput
 }
 
 export interface PostWhereInput {
@@ -1094,57 +1802,16 @@ export interface PostWhereInput {
   author?: UserWhereInput
 }
 
-export interface PostUpsertWithoutAuthorInput {
-  where: PostWhereUniqueInput
-  update: PostUpdateWithoutAuthorDataInput
-  create: PostCreateWithoutAuthorInput
+export interface TextUpdateOneInput {
+  create?: TextCreateInput
+  connect?: TextWhereUniqueInput
+  disconnect?: TextWhereUniqueInput
+  delete?: TextWhereUniqueInput
 }
 
-export interface ExerciseCreateInput {
-  name?: String
-}
-
-export interface PostUpdateWithoutAuthorDataInput {
-  isPublished?: Boolean
-  title?: String
-  text?: String
-  categoryName?: String
-}
-
-export interface PostCreateWithoutAuthorInput {
-  isPublished?: Boolean
-  title: String
-  text: String
-  categoryName: String
-}
-
-export interface PostUpdateWithoutAuthorInput {
-  where: PostWhereUniqueInput
-  data: PostUpdateWithoutAuthorDataInput
-}
-
-export interface WorkoutSessionSubscriptionWhereInput {
-  AND?: WorkoutSessionSubscriptionWhereInput[] | WorkoutSessionSubscriptionWhereInput
-  OR?: WorkoutSessionSubscriptionWhereInput[] | WorkoutSessionSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: WorkoutSessionWhereInput
-}
-
-export interface PostUpdateManyWithoutAuthorInput {
-  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
-  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  disconnect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  delete?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  update?: PostUpdateWithoutAuthorInput[] | PostUpdateWithoutAuthorInput
-  upsert?: PostUpsertWithoutAuthorInput[] | PostUpsertWithoutAuthorInput
-}
-
-export interface ExerciseSetWhereInput {
-  AND?: ExerciseSetWhereInput[] | ExerciseSetWhereInput
-  OR?: ExerciseSetWhereInput[] | ExerciseSetWhereInput
+export interface ExerciseWhereInput {
+  AND?: ExerciseWhereInput[] | ExerciseWhereInput
+  OR?: ExerciseWhereInput[] | ExerciseWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1175,38 +1842,248 @@ export interface ExerciseSetWhereInput {
   updatedAt_lte?: DateTime
   updatedAt_gt?: DateTime
   updatedAt_gte?: DateTime
-  reps?: Int
-  reps_not?: Int
-  reps_in?: Int[] | Int
-  reps_not_in?: Int[] | Int
-  reps_lt?: Int
-  reps_lte?: Int
-  reps_gt?: Int
-  reps_gte?: Int
-  repsUnit?: RepUnit
-  repsUnit_not?: RepUnit
-  repsUnit_in?: RepUnit[] | RepUnit
-  repsUnit_not_in?: RepUnit[] | RepUnit
-  intensity?: Int
-  intensity_not?: Int
-  intensity_in?: Int[] | Int
-  intensity_not_in?: Int[] | Int
-  intensity_lt?: Int
-  intensity_lte?: Int
-  intensity_gt?: Int
-  intensity_gte?: Int
-  intensityUnit?: IntensityUnit
-  intensityUnit_not?: IntensityUnit
-  intensityUnit_in?: IntensityUnit[] | IntensityUnit
-  intensityUnit_not_in?: IntensityUnit[] | IntensityUnit
-  exercise?: ExerciseWhereInput
+  slug?: String
+  slug_not?: String
+  slug_in?: String[] | String
+  slug_not_in?: String[] | String
+  slug_lt?: String
+  slug_lte?: String
+  slug_gt?: String
+  slug_gte?: String
+  slug_contains?: String
+  slug_not_contains?: String
+  slug_starts_with?: String
+  slug_not_starts_with?: String
+  slug_ends_with?: String
+  slug_not_ends_with?: String
+  name?: TextWhereInput
 }
 
-export interface UserUpdateInput {
-  email?: String
-  password?: String
+export interface ExerciseUpdateInput {
+  slug?: String
+  name?: TextUpdateOneInput
+}
+
+export interface UserSubscriptionWhereInput {
+  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: UserWhereInput
+}
+
+export interface TextTranslationUpdateManyInput {
+  create?: TextTranslationCreateInput[] | TextTranslationCreateInput
+  connect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+  disconnect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+  delete?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+}
+
+export interface TextWhereInput {
+  AND?: TextWhereInput[] | TextWhereInput
+  OR?: TextWhereInput[] | TextWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
+  updatedAt?: DateTime
+  updatedAt_not?: DateTime
+  updatedAt_in?: DateTime[] | DateTime
+  updatedAt_not_in?: DateTime[] | DateTime
+  updatedAt_lt?: DateTime
+  updatedAt_lte?: DateTime
+  updatedAt_gt?: DateTime
+  updatedAt_gte?: DateTime
+  translations_every?: TextTranslationWhereInput
+  translations_some?: TextTranslationWhereInput
+  translations_none?: TextTranslationWhereInput
+}
+
+export interface TextUpdateInput {
+  translations?: TextTranslationUpdateManyInput
+}
+
+export interface TextTranslationWhereInput {
+  AND?: TextTranslationWhereInput[] | TextTranslationWhereInput
+  OR?: TextTranslationWhereInput[] | TextTranslationWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
+  updatedAt?: DateTime
+  updatedAt_not?: DateTime
+  updatedAt_in?: DateTime[] | DateTime
+  updatedAt_not_in?: DateTime[] | DateTime
+  updatedAt_lt?: DateTime
+  updatedAt_lte?: DateTime
+  updatedAt_gt?: DateTime
+  updatedAt_gte?: DateTime
+  locale?: Locale
+  locale_not?: Locale
+  locale_in?: Locale[] | Locale
+  locale_not_in?: Locale[] | Locale
+  text?: String
+  text_not?: String
+  text_in?: String[] | String
+  text_not_in?: String[] | String
+  text_lt?: String
+  text_lte?: String
+  text_gt?: String
+  text_gte?: String
+  text_contains?: String
+  text_not_contains?: String
+  text_starts_with?: String
+  text_not_starts_with?: String
+  text_ends_with?: String
+  text_not_ends_with?: String
+}
+
+export interface TextTranslationUpdateInput {
+  locale?: Locale
+  text?: String
+}
+
+export interface WorkoutSessionWhereInput {
+  AND?: WorkoutSessionWhereInput[] | WorkoutSessionWhereInput
+  OR?: WorkoutSessionWhereInput[] | WorkoutSessionWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
+  updatedAt?: DateTime
+  updatedAt_not?: DateTime
+  updatedAt_in?: DateTime[] | DateTime
+  updatedAt_not_in?: DateTime[] | DateTime
+  updatedAt_lt?: DateTime
+  updatedAt_lte?: DateTime
+  updatedAt_gt?: DateTime
+  updatedAt_gte?: DateTime
   name?: String
-  posts?: PostUpdateManyWithoutAuthorInput
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  sets_every?: ExerciseSetWhereInput
+  sets_some?: ExerciseSetWhereInput
+  sets_none?: ExerciseSetWhereInput
+}
+
+export interface PostUpsertWithoutAuthorInput {
+  where: PostWhereUniqueInput
+  update: PostUpdateWithoutAuthorDataInput
+  create: PostCreateWithoutAuthorInput
+}
+
+export interface PostSubscriptionWhereInput {
+  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: PostWhereInput
+}
+
+export interface PostUpdateWithoutAuthorDataInput {
+  isPublished?: Boolean
+  title?: String
+  text?: String
+  categoryName?: String
+}
+
+export interface ExerciseSetSubscriptionWhereInput {
+  AND?: ExerciseSetSubscriptionWhereInput[] | ExerciseSetSubscriptionWhereInput
+  OR?: ExerciseSetSubscriptionWhereInput[] | ExerciseSetSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: ExerciseSetWhereInput
+}
+
+export interface PostUpdateWithoutAuthorInput {
+  where: PostWhereUniqueInput
+  data: PostUpdateWithoutAuthorDataInput
+}
+
+export interface WorkoutRuleUpdateInput {
+  hook?: WorkoutRuleHook
+  num?: Int
+  exercise?: ExerciseUpdateOneInput
+}
+
+export interface PostUpdateManyWithoutAuthorInput {
+  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
+  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  disconnect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  delete?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  update?: PostUpdateWithoutAuthorInput[] | PostUpdateWithoutAuthorInput
+  upsert?: PostUpsertWithoutAuthorInput[] | PostUpsertWithoutAuthorInput
 }
 
 export interface UserWhereInput {
@@ -1273,20 +2150,31 @@ export interface UserWhereInput {
   posts_none?: PostWhereInput
 }
 
+export interface UserUpdateInput {
+  email?: String
+  password?: String
+  name?: String
+  posts?: PostUpdateManyWithoutAuthorInput
+}
+
+export interface WorkoutProgramSettingsUpdateInput {
+  weightUnit?: WeightUnit
+}
+
 export interface UserUpsertWithoutPostsInput {
   where: UserWhereUniqueInput
   update: UserUpdateWithoutPostsDataInput
   create: UserCreateWithoutPostsInput
 }
 
-export interface PostSubscriptionWhereInput {
-  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
-  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+export interface WorkoutRuleSubscriptionWhereInput {
+  AND?: WorkoutRuleSubscriptionWhereInput[] | WorkoutRuleSubscriptionWhereInput
+  OR?: WorkoutRuleSubscriptionWhereInput[] | WorkoutRuleSubscriptionWhereInput
   mutation_in?: MutationType[] | MutationType
   updatedFields_contains?: String
   updatedFields_contains_every?: String[] | String
   updatedFields_contains_some?: String[] | String
-  node?: PostWhereInput
+  node?: WorkoutRuleWhereInput
 }
 
 export interface UserUpdateWithoutPostsDataInput {
@@ -1295,11 +2183,8 @@ export interface UserUpdateWithoutPostsDataInput {
   name?: String
 }
 
-export interface ExerciseSetUpdateManyInput {
-  create?: ExerciseSetCreateInput[] | ExerciseSetCreateInput
-  connect?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
-  disconnect?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
-  delete?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
+export interface PostWhereUniqueInput {
+  id?: ID_Input
 }
 
 export interface UserUpdateWithoutPostsInput {
@@ -1307,7 +2192,7 @@ export interface UserUpdateWithoutPostsInput {
   data: UserUpdateWithoutPostsDataInput
 }
 
-export interface PostWhereUniqueInput {
+export interface TextTranslationWhereUniqueInput {
   id?: ID_Input
 }
 
@@ -1322,6 +2207,7 @@ export interface UserUpdateOneWithoutPostsInput {
 
 export interface ExerciseWhereUniqueInput {
   id?: ID_Input
+  slug?: String
 }
 
 export interface PostUpdateInput {
@@ -1336,17 +2222,98 @@ export interface WorkoutSessionWhereUniqueInput {
   id?: ID_Input
 }
 
+export interface WorkoutRuleCreateManyInput {
+  create?: WorkoutRuleCreateInput[] | WorkoutRuleCreateInput
+}
+
+export interface WorkoutSessionUpdateManyInput {
+  create?: WorkoutSessionCreateInput[] | WorkoutSessionCreateInput
+  connect?: WorkoutSessionWhereUniqueInput[] | WorkoutSessionWhereUniqueInput
+  disconnect?: WorkoutSessionWhereUniqueInput[] | WorkoutSessionWhereUniqueInput
+  delete?: WorkoutSessionWhereUniqueInput[] | WorkoutSessionWhereUniqueInput
+}
+
+export interface WorkoutSessionCreateManyInput {
+  create?: WorkoutSessionCreateInput[] | WorkoutSessionCreateInput
+  connect?: WorkoutSessionWhereUniqueInput[] | WorkoutSessionWhereUniqueInput
+}
+
+export interface WorkoutProgramUpdateInput {
+  name?: String
+  settings?: WorkoutProgramSettingsUpdateOneInput
+  workouts?: WorkoutSessionUpdateManyInput
+  rules?: WorkoutRuleUpdateManyInput
+}
+
+export interface WorkoutProgramSettingsCreateOneInput {
+  create?: WorkoutProgramSettingsCreateInput
+}
+
+export interface WorkoutSessionUpdateInput {
+  name?: String
+  sets?: ExerciseSetUpdateManyInput
+}
+
+export interface WorkoutProgramCreateInput {
+  name: String
+  settings: WorkoutProgramSettingsCreateOneInput
+  workouts?: WorkoutSessionCreateManyInput
+  rules?: WorkoutRuleCreateManyInput
+}
+
+export interface TextTranslationSubscriptionWhereInput {
+  AND?: TextTranslationSubscriptionWhereInput[] | TextTranslationSubscriptionWhereInput
+  OR?: TextTranslationSubscriptionWhereInput[] | TextTranslationSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: TextTranslationWhereInput
+}
+
+export interface WorkoutRuleCreateInput {
+  hook?: WorkoutRuleHook
+  num?: Int
+  exercise: ExerciseCreateOneInput
+}
+
+export interface TextSubscriptionWhereInput {
+  AND?: TextSubscriptionWhereInput[] | TextSubscriptionWhereInput
+  OR?: TextSubscriptionWhereInput[] | TextSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: TextWhereInput
+}
+
+export interface WorkoutProgramSettingsCreateInput {
+  weightUnit: WeightUnit
+}
+
+export interface WorkoutSessionSubscriptionWhereInput {
+  AND?: WorkoutSessionSubscriptionWhereInput[] | WorkoutSessionSubscriptionWhereInput
+  OR?: WorkoutSessionSubscriptionWhereInput[] | WorkoutSessionSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: WorkoutSessionWhereInput
+}
+
 export interface ExerciseSetCreateManyInput {
   create?: ExerciseSetCreateInput[] | ExerciseSetCreateInput
   connect?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
 }
 
-export interface ExerciseSetUpdateInput {
-  reps?: Int
-  repsUnit?: RepUnit
-  intensity?: Int
-  intensityUnit?: IntensityUnit
-  exercise?: ExerciseUpdateOneInput
+export interface WorkoutProgramSettingsSubscriptionWhereInput {
+  AND?: WorkoutProgramSettingsSubscriptionWhereInput[] | WorkoutProgramSettingsSubscriptionWhereInput
+  OR?: WorkoutProgramSettingsSubscriptionWhereInput[] | WorkoutProgramSettingsSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: WorkoutProgramSettingsWhereInput
 }
 
 export interface WorkoutSessionCreateInput {
@@ -1354,9 +2321,133 @@ export interface WorkoutSessionCreateInput {
   sets?: ExerciseSetCreateManyInput
 }
 
-export interface ExerciseWhereInput {
-  AND?: ExerciseWhereInput[] | ExerciseWhereInput
-  OR?: ExerciseWhereInput[] | ExerciseWhereInput
+export interface WorkoutRuleUpdateManyInput {
+  create?: WorkoutRuleCreateInput[] | WorkoutRuleCreateInput
+}
+
+export interface ExerciseCreateOneInput {
+  create?: ExerciseCreateInput
+  connect?: ExerciseWhereUniqueInput
+}
+
+export interface TextWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface PostCreateInput {
+  isPublished?: Boolean
+  title: String
+  text: String
+  categoryName: String
+  author: UserCreateOneWithoutPostsInput
+}
+
+export interface WorkoutProgramWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface UserCreateOneWithoutPostsInput {
+  create?: UserCreateWithoutPostsInput
+  connect?: UserWhereUniqueInput
+}
+
+export interface ExerciseSetUpdateManyInput {
+  create?: ExerciseSetCreateInput[] | ExerciseSetCreateInput
+  connect?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
+  disconnect?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
+  delete?: ExerciseSetWhereUniqueInput[] | ExerciseSetWhereUniqueInput
+}
+
+export interface UserCreateWithoutPostsInput {
+  email: String
+  password: String
+  name: String
+}
+
+export interface ExerciseSetWhereInput {
+  AND?: ExerciseSetWhereInput[] | ExerciseSetWhereInput
+  OR?: ExerciseSetWhereInput[] | ExerciseSetWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
+  updatedAt?: DateTime
+  updatedAt_not?: DateTime
+  updatedAt_in?: DateTime[] | DateTime
+  updatedAt_not_in?: DateTime[] | DateTime
+  updatedAt_lt?: DateTime
+  updatedAt_lte?: DateTime
+  updatedAt_gt?: DateTime
+  updatedAt_gte?: DateTime
+  reps?: Int
+  reps_not?: Int
+  reps_in?: Int[] | Int
+  reps_not_in?: Int[] | Int
+  reps_lt?: Int
+  reps_lte?: Int
+  reps_gt?: Int
+  reps_gte?: Int
+  repsUnit?: RepUnit
+  repsUnit_not?: RepUnit
+  repsUnit_in?: RepUnit[] | RepUnit
+  repsUnit_not_in?: RepUnit[] | RepUnit
+  intensity?: Int
+  intensity_not?: Int
+  intensity_in?: Int[] | Int
+  intensity_not_in?: Int[] | Int
+  intensity_lt?: Int
+  intensity_lte?: Int
+  intensity_gt?: Int
+  intensity_gte?: Int
+  intensityUnit?: IntensityUnit
+  intensityUnit_not?: IntensityUnit
+  intensityUnit_in?: IntensityUnit[] | IntensityUnit
+  intensityUnit_not_in?: IntensityUnit[] | IntensityUnit
+  exercise?: ExerciseWhereInput
+}
+
+export interface UserCreateInput {
+  email: String
+  password: String
+  name: String
+  posts?: PostCreateManyWithoutAuthorInput
+}
+
+export interface WorkoutProgramSettingsWhereInput {
+  AND?: WorkoutProgramSettingsWhereInput[] | WorkoutProgramSettingsWhereInput
+  OR?: WorkoutProgramSettingsWhereInput[] | WorkoutProgramSettingsWhereInput
+  weightUnit?: WeightUnit
+  weightUnit_not?: WeightUnit
+  weightUnit_in?: WeightUnit[] | WeightUnit
+  weightUnit_not_in?: WeightUnit[] | WeightUnit
+}
+
+export interface PostCreateManyWithoutAuthorInput {
+  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
+  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+}
+
+export interface WorkoutProgramWhereInput {
+  AND?: WorkoutProgramWhereInput[] | WorkoutProgramWhereInput
+  OR?: WorkoutProgramWhereInput[] | WorkoutProgramWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1401,11 +2492,61 @@ export interface ExerciseWhereInput {
   name_not_starts_with?: String
   name_ends_with?: String
   name_not_ends_with?: String
+  settings?: WorkoutProgramSettingsWhereInput
+  workouts_every?: WorkoutSessionWhereInput
+  workouts_some?: WorkoutSessionWhereInput
+  workouts_none?: WorkoutSessionWhereInput
+  rules_every?: WorkoutRuleWhereInput
+  rules_some?: WorkoutRuleWhereInput
+  rules_none?: WorkoutRuleWhereInput
 }
 
-export interface ExerciseCreateOneInput {
+export interface PostCreateWithoutAuthorInput {
+  isPublished?: Boolean
+  title: String
+  text: String
+  categoryName: String
+}
+
+export interface WorkoutProgramSubscriptionWhereInput {
+  AND?: WorkoutProgramSubscriptionWhereInput[] | WorkoutProgramSubscriptionWhereInput
+  OR?: WorkoutProgramSubscriptionWhereInput[] | WorkoutProgramSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: WorkoutProgramWhereInput
+}
+
+export interface TextTranslationCreateInput {
+  locale: Locale
+  text: String
+}
+
+export interface ExerciseUpdateOneInput {
   create?: ExerciseCreateInput
   connect?: ExerciseWhereUniqueInput
+  disconnect?: ExerciseWhereUniqueInput
+  delete?: ExerciseWhereUniqueInput
+}
+
+export interface TextCreateOneInput {
+  create?: TextCreateInput
+  connect?: TextWhereUniqueInput
+}
+
+export interface ExerciseCreateInput {
+  slug: String
+  name: TextCreateOneInput
+}
+
+export interface TextTranslationCreateManyInput {
+  create?: TextTranslationCreateInput[] | TextTranslationCreateInput
+  connect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+}
+
+export interface TextCreateInput {
+  translations?: TextTranslationCreateManyInput
 }
 
 export interface ExerciseSubscriptionWhereInput {
@@ -1418,69 +2559,8 @@ export interface ExerciseSubscriptionWhereInput {
   node?: ExerciseWhereInput
 }
 
-export interface ExerciseSetCreateInput {
-  reps: Int
-  repsUnit: RepUnit
-  intensity?: Int
-  intensityUnit?: IntensityUnit
-  exercise: ExerciseCreateOneInput
-}
-
-export interface WorkoutSessionWhereInput {
-  AND?: WorkoutSessionWhereInput[] | WorkoutSessionWhereInput
-  OR?: WorkoutSessionWhereInput[] | WorkoutSessionWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  createdAt?: DateTime
-  createdAt_not?: DateTime
-  createdAt_in?: DateTime[] | DateTime
-  createdAt_not_in?: DateTime[] | DateTime
-  createdAt_lt?: DateTime
-  createdAt_lte?: DateTime
-  createdAt_gt?: DateTime
-  createdAt_gte?: DateTime
-  updatedAt?: DateTime
-  updatedAt_not?: DateTime
-  updatedAt_in?: DateTime[] | DateTime
-  updatedAt_not_in?: DateTime[] | DateTime
-  updatedAt_lt?: DateTime
-  updatedAt_lte?: DateTime
-  updatedAt_gt?: DateTime
-  updatedAt_gte?: DateTime
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  sets_every?: ExerciseSetWhereInput
-  sets_some?: ExerciseSetWhereInput
-  sets_none?: ExerciseSetWhereInput
-}
-
-export interface UserCreateOneWithoutPostsInput {
-  create?: UserCreateWithoutPostsInput
-  connect?: UserWhereUniqueInput
+export interface WorkoutProgramSettingsUpdateOneInput {
+  create?: WorkoutProgramSettingsCreateInput
 }
 
 export interface UserWhereUniqueInput {
@@ -1488,86 +2568,88 @@ export interface UserWhereUniqueInput {
   email?: String
 }
 
-export interface ExerciseUpdateOneInput {
-  create?: ExerciseCreateInput
-  connect?: ExerciseWhereUniqueInput
-  disconnect?: ExerciseWhereUniqueInput
-  delete?: ExerciseWhereUniqueInput
-}
-
-export interface PostCreateManyWithoutAuthorInput {
-  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
-  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-}
-
-export interface UserCreateInput {
-  email: String
-  password: String
-  name: String
-  posts?: PostCreateManyWithoutAuthorInput
-}
-
-export interface UserCreateWithoutPostsInput {
-  email: String
-  password: String
-  name: String
-}
-
-export interface ExerciseUpdateInput {
-  name?: String
-}
-
-export interface ExerciseSetWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface WorkoutSessionUpdateInput {
-  name?: String
-  sets?: ExerciseSetUpdateManyInput
-}
-
-export interface UserSubscriptionWhereInput {
-  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: UserWhereInput
-}
-
-export interface ExerciseSetSubscriptionWhereInput {
-  AND?: ExerciseSetSubscriptionWhereInput[] | ExerciseSetSubscriptionWhereInput
-  OR?: ExerciseSetSubscriptionWhereInput[] | ExerciseSetSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: ExerciseSetWhereInput
+export interface WorkoutRuleWhereInput {
+  AND?: WorkoutRuleWhereInput[] | WorkoutRuleWhereInput
+  OR?: WorkoutRuleWhereInput[] | WorkoutRuleWhereInput
+  hook?: WorkoutRuleHook
+  hook_not?: WorkoutRuleHook
+  hook_in?: WorkoutRuleHook[] | WorkoutRuleHook
+  hook_not_in?: WorkoutRuleHook[] | WorkoutRuleHook
+  num?: Int
+  num_not?: Int
+  num_in?: Int[] | Int
+  num_not_in?: Int[] | Int
+  num_lt?: Int
+  num_lte?: Int
+  num_gt?: Int
+  num_gte?: Int
+  exercise?: ExerciseWhereInput
 }
 
 export interface Node {
   id: ID_Output
 }
 
-export interface WorkoutSessionPreviousValues {
+export interface AggregateWorkoutProgram {
+  count: Int
+}
+
+export interface WorkoutProgram extends Node {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  name: String
+  settings: WorkoutProgramSettings
+  workouts?: WorkoutSession[]
+  rules?: WorkoutRule[]
+}
+
+export interface WorkoutRuleSubscriptionPayload {
+  mutation: MutationType
+  node?: WorkoutRule
+  updatedFields?: String[]
+  previousValues?: WorkoutRulePreviousValues
+}
+
+export interface BatchPayload {
+  count: Long
+}
+
+export interface WorkoutProgramPreviousValues {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
   name: String
 }
 
-export interface PostConnection {
-  pageInfo: PageInfo
-  edges: PostEdge[]
-  aggregate: AggregatePost
+export interface WorkoutProgramEdge {
+  node: WorkoutProgram
+  cursor: String
 }
 
-export interface Exercise extends Node {
-  id: ID_Output
-  createdAt: DateTime
-  updatedAt: DateTime
-  name?: String
+export interface AggregateWorkoutRule {
+  count: Int
+}
+
+export interface WorkoutRule {
+  hook?: WorkoutRuleHook
+  num: Int
+  exercise: Exercise
+}
+
+export interface WorkoutRuleConnection {
+  pageInfo: PageInfo
+  edges: WorkoutRuleEdge[]
+  aggregate: AggregateWorkoutRule
+}
+
+export interface WorkoutProgramSettings {
+  weightUnit: WeightUnit
+}
+
+export interface WorkoutProgramSettingsEdge {
+  node: WorkoutProgramSettings
+  cursor: String
 }
 
 export interface WorkoutSession extends Node {
@@ -1578,41 +2660,7 @@ export interface WorkoutSession extends Node {
   sets?: ExerciseSet[]
 }
 
-export interface User extends Node {
-  id: ID_Output
-  email: String
-  password: String
-  name: String
-  posts?: Post[]
-}
-
 export interface AggregateWorkoutSession {
-  count: Int
-}
-
-export interface WorkoutSessionConnection {
-  pageInfo: PageInfo
-  edges: WorkoutSessionEdge[]
-  aggregate: AggregateWorkoutSession
-}
-
-export interface BatchPayload {
-  count: Long
-}
-
-export interface ExerciseSetEdge {
-  node: ExerciseSet
-  cursor: String
-}
-
-export interface WorkoutSessionSubscriptionPayload {
-  mutation: MutationType
-  node?: WorkoutSession
-  updatedFields?: String[]
-  previousValues?: WorkoutSessionPreviousValues
-}
-
-export interface AggregateExercise {
   count: Int
 }
 
@@ -1627,10 +2675,185 @@ export interface ExerciseSet extends Node {
   intensityUnit?: IntensityUnit
 }
 
+export interface WorkoutSessionConnection {
+  pageInfo: PageInfo
+  edges: WorkoutSessionEdge[]
+  aggregate: AggregateWorkoutSession
+}
+
+export interface PostSubscriptionPayload {
+  mutation: MutationType
+  node?: Post
+  updatedFields?: String[]
+  previousValues?: PostPreviousValues
+}
+
+export interface ExerciseSetEdge {
+  node: ExerciseSet
+  cursor: String
+}
+
+export interface PostPreviousValues {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  isPublished: Boolean
+  title: String
+  text: String
+  categoryName: String
+}
+
+export interface AggregateExercise {
+  count: Int
+}
+
+export interface Exercise extends Node {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  name: Text
+  slug: String
+}
+
 export interface ExerciseConnection {
   pageInfo: PageInfo
   edges: ExerciseEdge[]
   aggregate: AggregateExercise
+}
+
+export interface UserSubscriptionPayload {
+  mutation: MutationType
+  node?: User
+  updatedFields?: String[]
+  previousValues?: UserPreviousValues
+}
+
+export interface TextEdge {
+  node: Text
+  cursor: String
+}
+
+export interface UserPreviousValues {
+  id: ID_Output
+  email: String
+  password: String
+  name: String
+}
+
+export interface AggregateTextTranslation {
+  count: Int
+}
+
+export interface Text extends Node {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  translations?: TextTranslation[]
+}
+
+export interface TextTranslationConnection {
+  pageInfo: PageInfo
+  edges: TextTranslationEdge[]
+  aggregate: AggregateTextTranslation
+}
+
+export interface TextTranslationSubscriptionPayload {
+  mutation: MutationType
+  node?: TextTranslation
+  updatedFields?: String[]
+  previousValues?: TextTranslationPreviousValues
+}
+
+export interface UserEdge {
+  node: User
+  cursor: String
+}
+
+export interface TextTranslationPreviousValues {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  locale: Locale
+  text: String
+}
+
+export interface AggregatePost {
+  count: Int
+}
+
+export interface TextTranslation extends Node {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  locale: Locale
+  text: String
+}
+
+export interface PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor?: String
+  endCursor?: String
+}
+
+export interface TextSubscriptionPayload {
+  mutation: MutationType
+  node?: Text
+  updatedFields?: String[]
+  previousValues?: TextPreviousValues
+}
+
+export interface WorkoutProgramConnection {
+  pageInfo: PageInfo
+  edges: WorkoutProgramEdge[]
+  aggregate: AggregateWorkoutProgram
+}
+
+export interface TextPreviousValues {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+export interface AggregateWorkoutProgramSettings {
+  count: Int
+}
+
+export interface User extends Node {
+  id: ID_Output
+  email: String
+  password: String
+  name: String
+  posts?: Post[]
+}
+
+export interface WorkoutSessionEdge {
+  node: WorkoutSession
+  cursor: String
+}
+
+export interface ExerciseSubscriptionPayload {
+  mutation: MutationType
+  node?: Exercise
+  updatedFields?: String[]
+  previousValues?: ExercisePreviousValues
+}
+
+export interface ExerciseSetConnection {
+  pageInfo: PageInfo
+  edges: ExerciseSetEdge[]
+  aggregate: AggregateExerciseSet
+}
+
+export interface ExercisePreviousValues {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  slug: String
+}
+
+export interface AggregateText {
+  count: Int
 }
 
 export interface Post extends Node {
@@ -1644,37 +2867,22 @@ export interface Post extends Node {
   categoryName: String
 }
 
-export interface UserEdge {
-  node: User
+export interface TextTranslationEdge {
+  node: TextTranslation
   cursor: String
 }
 
-export interface PostSubscriptionPayload {
+export interface ExerciseSetSubscriptionPayload {
   mutation: MutationType
-  node?: Post
+  node?: ExerciseSet
   updatedFields?: String[]
-  previousValues?: PostPreviousValues
+  previousValues?: ExerciseSetPreviousValues
 }
 
-export interface AggregatePost {
-  count: Int
-}
-
-export interface PostPreviousValues {
-  id: ID_Output
-  createdAt: DateTime
-  updatedAt: DateTime
-  isPublished: Boolean
-  title: String
-  text: String
-  categoryName: String
-}
-
-export interface PageInfo {
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
-  startCursor?: String
-  endCursor?: String
+export interface UserConnection {
+  pageInfo: PageInfo
+  edges: UserEdge[]
+  aggregate: AggregateUser
 }
 
 export interface ExerciseSetPreviousValues {
@@ -1687,15 +2895,30 @@ export interface ExerciseSetPreviousValues {
   intensityUnit?: IntensityUnit
 }
 
-export interface AggregateExerciseSet {
-  count: Int
+export interface PostConnection {
+  pageInfo: PageInfo
+  edges: PostEdge[]
+  aggregate: AggregatePost
 }
 
-export interface UserSubscriptionPayload {
+export interface WorkoutProgramSubscriptionPayload {
   mutation: MutationType
-  node?: User
+  node?: WorkoutProgram
   updatedFields?: String[]
-  previousValues?: UserPreviousValues
+  previousValues?: WorkoutProgramPreviousValues
+}
+
+export interface WorkoutProgramSettingsConnection {
+  pageInfo: PageInfo
+  edges: WorkoutProgramSettingsEdge[]
+  aggregate: AggregateWorkoutProgramSettings
+}
+
+export interface WorkoutSessionSubscriptionPayload {
+  mutation: MutationType
+  node?: WorkoutSession
+  updatedFields?: String[]
+  previousValues?: WorkoutSessionPreviousValues
 }
 
 export interface ExerciseEdge {
@@ -1703,37 +2926,30 @@ export interface ExerciseEdge {
   cursor: String
 }
 
-export interface UserConnection {
-  pageInfo: PageInfo
-  edges: UserEdge[]
-  aggregate: AggregateUser
+export interface AggregateUser {
+  count: Int
 }
 
-export interface ExercisePreviousValues {
+export interface WorkoutProgramSettingsPreviousValues {
+  weightUnit: WeightUnit
+}
+
+export interface WorkoutProgramSettingsSubscriptionPayload {
+  mutation: MutationType
+  node?: WorkoutProgramSettings
+  updatedFields?: String[]
+  previousValues?: WorkoutProgramSettingsPreviousValues
+}
+
+export interface WorkoutRulePreviousValues {
+  hook?: WorkoutRuleHook
+  num: Int
+}
+
+export interface WorkoutSessionPreviousValues {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
-  name?: String
-}
-
-export interface ExerciseSubscriptionPayload {
-  mutation: MutationType
-  node?: Exercise
-  updatedFields?: String[]
-  previousValues?: ExercisePreviousValues
-}
-
-export interface ExerciseSetSubscriptionPayload {
-  mutation: MutationType
-  node?: ExerciseSet
-  updatedFields?: String[]
-  previousValues?: ExerciseSetPreviousValues
-}
-
-export interface UserPreviousValues {
-  id: ID_Output
-  email: String
-  password: String
   name: String
 }
 
@@ -1742,25 +2958,22 @@ export interface PostEdge {
   cursor: String
 }
 
-export interface AggregateUser {
+export interface TextConnection {
+  pageInfo: PageInfo
+  edges: TextEdge[]
+  aggregate: AggregateText
+}
+
+export interface AggregateExerciseSet {
   count: Int
 }
 
-export interface ExerciseSetConnection {
-  pageInfo: PageInfo
-  edges: ExerciseSetEdge[]
-  aggregate: AggregateExerciseSet
-}
-
-export interface WorkoutSessionEdge {
-  node: WorkoutSession
+export interface WorkoutRuleEdge {
+  node: WorkoutRule
   cursor: String
 }
 
-/*
-The `Boolean` scalar type represents `true` or `false`.
-*/
-export type Boolean = boolean
+export type Long = string
 
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
@@ -1768,7 +2981,10 @@ The `ID` scalar type represents a unique identifier, often used to refetch an ob
 export type ID_Input = string | number
 export type ID_Output = string
 
-export type Long = string
+/*
+The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
+*/
+export type Int = number
 
 export type DateTime = string
 
@@ -1778,9 +2994,9 @@ The `String` scalar type represents textual data, represented as UTF-8 character
 export type String = string
 
 /*
-The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
+The `Boolean` scalar type represents `true` or `false`.
 */
-export type Int = number
+export type Boolean = boolean
 
 export interface Schema {
   query: Query
@@ -1791,61 +3007,103 @@ export interface Schema {
 export type Query = {
   posts: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Post[]>
   users: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<User[]>
+  textTranslations: (args: { where?: TextTranslationWhereInput, orderBy?: TextTranslationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation[]>
+  texts: (args: { where?: TextWhereInput, orderBy?: TextOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Text[]>
   exercises: (args: { where?: ExerciseWhereInput, orderBy?: ExerciseOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Exercise[]>
   exerciseSets: (args: { where?: ExerciseSetWhereInput, orderBy?: ExerciseSetOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet[]>
   workoutSessions: (args: { where?: WorkoutSessionWhereInput, orderBy?: WorkoutSessionOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession[]>
+  workoutProgramSettingses: (args: { where?: WorkoutProgramSettingsWhereInput, orderBy?: WorkoutProgramSettingsOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgramSettings[]>
+  workoutRules: (args: { where?: WorkoutRuleWhereInput, orderBy?: WorkoutRuleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutRule[]>
+  workoutPrograms: (args: { where?: WorkoutProgramWhereInput, orderBy?: WorkoutProgramOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram[]>
   post: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   user: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  textTranslation: (args: { where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
+  text: (args: { where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
   exercise: (args: { where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   exerciseSet: (args: { where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   workoutSession: (args: { where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
+  workoutProgram: (args: { where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   postsConnection: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<PostConnection>
   usersConnection: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<UserConnection>
+  textTranslationsConnection: (args: { where?: TextTranslationWhereInput, orderBy?: TextTranslationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextTranslationConnection>
+  textsConnection: (args: { where?: TextWhereInput, orderBy?: TextOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextConnection>
   exercisesConnection: (args: { where?: ExerciseWhereInput, orderBy?: ExerciseOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseConnection>
   exerciseSetsConnection: (args: { where?: ExerciseSetWhereInput, orderBy?: ExerciseSetOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSetConnection>
   workoutSessionsConnection: (args: { where?: WorkoutSessionWhereInput, orderBy?: WorkoutSessionOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSessionConnection>
+  workoutProgramSettingsesConnection: (args: { where?: WorkoutProgramSettingsWhereInput, orderBy?: WorkoutProgramSettingsOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgramSettingsConnection>
+  workoutRulesConnection: (args: { where?: WorkoutRuleWhereInput, orderBy?: WorkoutRuleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutRuleConnection>
+  workoutProgramsConnection: (args: { where?: WorkoutProgramWhereInput, orderBy?: WorkoutProgramOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgramConnection>
   node: (args: { id: ID_Output }, info?: GraphQLResolveInfo | string) => Promise<Node | null>
 }
 
 export type Mutation = {
   createPost: (args: { data: PostCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   createUser: (args: { data: UserCreateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
+  createTextTranslation: (args: { data: TextTranslationCreateInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation>
+  createText: (args: { data: TextCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Text>
   createExercise: (args: { data: ExerciseCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise>
   createExerciseSet: (args: { data: ExerciseSetCreateInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet>
   createWorkoutSession: (args: { data: WorkoutSessionCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession>
+  createWorkoutProgramSettings: (args: { data: WorkoutProgramSettingsCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgramSettings>
+  createWorkoutRule: (args: { data: WorkoutRuleCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutRule>
+  createWorkoutProgram: (args: { data: WorkoutProgramCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram>
   updatePost: (args: { data: PostUpdateInput, where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   updateUser: (args: { data: UserUpdateInput, where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  updateTextTranslation: (args: { data: TextTranslationUpdateInput, where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
+  updateText: (args: { data: TextUpdateInput, where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
   updateExercise: (args: { data: ExerciseUpdateInput, where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   updateExerciseSet: (args: { data: ExerciseSetUpdateInput, where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   updateWorkoutSession: (args: { data: WorkoutSessionUpdateInput, where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
+  updateWorkoutProgram: (args: { data: WorkoutProgramUpdateInput, where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   deletePost: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   deleteUser: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  deleteTextTranslation: (args: { where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
+  deleteText: (args: { where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
   deleteExercise: (args: { where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   deleteExerciseSet: (args: { where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   deleteWorkoutSession: (args: { where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
+  deleteWorkoutProgram: (args: { where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   upsertPost: (args: { where: PostWhereUniqueInput, create: PostCreateInput, update: PostUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   upsertUser: (args: { where: UserWhereUniqueInput, create: UserCreateInput, update: UserUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
+  upsertTextTranslation: (args: { where: TextTranslationWhereUniqueInput, create: TextTranslationCreateInput, update: TextTranslationUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation>
+  upsertText: (args: { where: TextWhereUniqueInput, create: TextCreateInput, update: TextUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Text>
   upsertExercise: (args: { where: ExerciseWhereUniqueInput, create: ExerciseCreateInput, update: ExerciseUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise>
   upsertExerciseSet: (args: { where: ExerciseSetWhereUniqueInput, create: ExerciseSetCreateInput, update: ExerciseSetUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet>
   upsertWorkoutSession: (args: { where: WorkoutSessionWhereUniqueInput, create: WorkoutSessionCreateInput, update: WorkoutSessionUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession>
+  upsertWorkoutProgram: (args: { where: WorkoutProgramWhereUniqueInput, create: WorkoutProgramCreateInput, update: WorkoutProgramUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram>
   updateManyPosts: (args: { data: PostUpdateInput, where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyUsers: (args: { data: UserUpdateInput, where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyTextTranslations: (args: { data: TextTranslationUpdateInput, where: TextTranslationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyTexts: (args: { data: TextUpdateInput, where: TextWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyExercises: (args: { data: ExerciseUpdateInput, where: ExerciseWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyExerciseSets: (args: { data: ExerciseSetUpdateInput, where: ExerciseSetWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyWorkoutSessions: (args: { data: WorkoutSessionUpdateInput, where: WorkoutSessionWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyWorkoutProgramSettingses: (args: { data: WorkoutProgramSettingsUpdateInput, where: WorkoutProgramSettingsWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyWorkoutRules: (args: { data: WorkoutRuleUpdateInput, where: WorkoutRuleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyWorkoutPrograms: (args: { data: WorkoutProgramUpdateInput, where: WorkoutProgramWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyPosts: (args: { where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyUsers: (args: { where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyTextTranslations: (args: { where: TextTranslationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyTexts: (args: { where: TextWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyExercises: (args: { where: ExerciseWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyExerciseSets: (args: { where: ExerciseSetWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyWorkoutSessions: (args: { where: WorkoutSessionWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyWorkoutProgramSettingses: (args: { where: WorkoutProgramSettingsWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyWorkoutRules: (args: { where: WorkoutRuleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyWorkoutPrograms: (args: { where: WorkoutProgramWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
 }
 
 export type Subscription = {
   post: (args: { where?: PostSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<PostSubscriptionPayload>>
   user: (args: { where?: UserSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<UserSubscriptionPayload>>
+  textTranslation: (args: { where?: TextTranslationSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<TextTranslationSubscriptionPayload>>
+  text: (args: { where?: TextSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<TextSubscriptionPayload>>
   exercise: (args: { where?: ExerciseSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ExerciseSubscriptionPayload>>
   exerciseSet: (args: { where?: ExerciseSetSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ExerciseSetSubscriptionPayload>>
   workoutSession: (args: { where?: WorkoutSessionSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<WorkoutSessionSubscriptionPayload>>
+  workoutProgramSettings: (args: { where?: WorkoutProgramSettingsSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<WorkoutProgramSettingsSubscriptionPayload>>
+  workoutRule: (args: { where?: WorkoutRuleSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<WorkoutRuleSubscriptionPayload>>
+  workoutProgram: (args: { where?: WorkoutProgramSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<WorkoutProgramSubscriptionPayload>>
 }
 
 export class Prisma extends BasePrisma {
@@ -1857,68 +3115,115 @@ export class Prisma extends BasePrisma {
   exists = {
     Post: (where: PostWhereInput): Promise<boolean> => super.existsDelegate('query', 'posts', { where }, {}, '{ id }'),
     User: (where: UserWhereInput): Promise<boolean> => super.existsDelegate('query', 'users', { where }, {}, '{ id }'),
+    TextTranslation: (where: TextTranslationWhereInput): Promise<boolean> => super.existsDelegate('query', 'textTranslations', { where }, {}, '{ id }'),
+    Text: (where: TextWhereInput): Promise<boolean> => super.existsDelegate('query', 'texts', { where }, {}, '{ id }'),
     Exercise: (where: ExerciseWhereInput): Promise<boolean> => super.existsDelegate('query', 'exercises', { where }, {}, '{ id }'),
     ExerciseSet: (where: ExerciseSetWhereInput): Promise<boolean> => super.existsDelegate('query', 'exerciseSets', { where }, {}, '{ id }'),
-    WorkoutSession: (where: WorkoutSessionWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutSessions', { where }, {}, '{ id }')
+    WorkoutSession: (where: WorkoutSessionWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutSessions', { where }, {}, '{ id }'),
+    WorkoutProgramSettings: (where: WorkoutProgramSettingsWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutProgramSettingses', { where }, {}, '{ id }'),
+    WorkoutRule: (where: WorkoutRuleWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutRules', { where }, {}, '{ id }'),
+    WorkoutProgram: (where: WorkoutProgramWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutPrograms', { where }, {}, '{ id }')
   }
 
   query: Query = {
     posts: (args, info): Promise<Post[]> => super.delegate('query', 'posts', args, {}, info),
     users: (args, info): Promise<User[]> => super.delegate('query', 'users', args, {}, info),
+    textTranslations: (args, info): Promise<TextTranslation[]> => super.delegate('query', 'textTranslations', args, {}, info),
+    texts: (args, info): Promise<Text[]> => super.delegate('query', 'texts', args, {}, info),
     exercises: (args, info): Promise<Exercise[]> => super.delegate('query', 'exercises', args, {}, info),
     exerciseSets: (args, info): Promise<ExerciseSet[]> => super.delegate('query', 'exerciseSets', args, {}, info),
     workoutSessions: (args, info): Promise<WorkoutSession[]> => super.delegate('query', 'workoutSessions', args, {}, info),
+    workoutProgramSettingses: (args, info): Promise<WorkoutProgramSettings[]> => super.delegate('query', 'workoutProgramSettingses', args, {}, info),
+    workoutRules: (args, info): Promise<WorkoutRule[]> => super.delegate('query', 'workoutRules', args, {}, info),
+    workoutPrograms: (args, info): Promise<WorkoutProgram[]> => super.delegate('query', 'workoutPrograms', args, {}, info),
     post: (args, info): Promise<Post | null> => super.delegate('query', 'post', args, {}, info),
     user: (args, info): Promise<User | null> => super.delegate('query', 'user', args, {}, info),
+    textTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('query', 'textTranslation', args, {}, info),
+    text: (args, info): Promise<Text | null> => super.delegate('query', 'text', args, {}, info),
     exercise: (args, info): Promise<Exercise | null> => super.delegate('query', 'exercise', args, {}, info),
     exerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('query', 'exerciseSet', args, {}, info),
     workoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('query', 'workoutSession', args, {}, info),
+    workoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('query', 'workoutProgram', args, {}, info),
     postsConnection: (args, info): Promise<PostConnection> => super.delegate('query', 'postsConnection', args, {}, info),
     usersConnection: (args, info): Promise<UserConnection> => super.delegate('query', 'usersConnection', args, {}, info),
+    textTranslationsConnection: (args, info): Promise<TextTranslationConnection> => super.delegate('query', 'textTranslationsConnection', args, {}, info),
+    textsConnection: (args, info): Promise<TextConnection> => super.delegate('query', 'textsConnection', args, {}, info),
     exercisesConnection: (args, info): Promise<ExerciseConnection> => super.delegate('query', 'exercisesConnection', args, {}, info),
     exerciseSetsConnection: (args, info): Promise<ExerciseSetConnection> => super.delegate('query', 'exerciseSetsConnection', args, {}, info),
     workoutSessionsConnection: (args, info): Promise<WorkoutSessionConnection> => super.delegate('query', 'workoutSessionsConnection', args, {}, info),
+    workoutProgramSettingsesConnection: (args, info): Promise<WorkoutProgramSettingsConnection> => super.delegate('query', 'workoutProgramSettingsesConnection', args, {}, info),
+    workoutRulesConnection: (args, info): Promise<WorkoutRuleConnection> => super.delegate('query', 'workoutRulesConnection', args, {}, info),
+    workoutProgramsConnection: (args, info): Promise<WorkoutProgramConnection> => super.delegate('query', 'workoutProgramsConnection', args, {}, info),
     node: (args, info): Promise<Node | null> => super.delegate('query', 'node', args, {}, info)
   }
 
   mutation: Mutation = {
     createPost: (args, info): Promise<Post> => super.delegate('mutation', 'createPost', args, {}, info),
     createUser: (args, info): Promise<User> => super.delegate('mutation', 'createUser', args, {}, info),
+    createTextTranslation: (args, info): Promise<TextTranslation> => super.delegate('mutation', 'createTextTranslation', args, {}, info),
+    createText: (args, info): Promise<Text> => super.delegate('mutation', 'createText', args, {}, info),
     createExercise: (args, info): Promise<Exercise> => super.delegate('mutation', 'createExercise', args, {}, info),
     createExerciseSet: (args, info): Promise<ExerciseSet> => super.delegate('mutation', 'createExerciseSet', args, {}, info),
     createWorkoutSession: (args, info): Promise<WorkoutSession> => super.delegate('mutation', 'createWorkoutSession', args, {}, info),
+    createWorkoutProgramSettings: (args, info): Promise<WorkoutProgramSettings> => super.delegate('mutation', 'createWorkoutProgramSettings', args, {}, info),
+    createWorkoutRule: (args, info): Promise<WorkoutRule> => super.delegate('mutation', 'createWorkoutRule', args, {}, info),
+    createWorkoutProgram: (args, info): Promise<WorkoutProgram> => super.delegate('mutation', 'createWorkoutProgram', args, {}, info),
     updatePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'updatePost', args, {}, info),
     updateUser: (args, info): Promise<User | null> => super.delegate('mutation', 'updateUser', args, {}, info),
+    updateTextTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('mutation', 'updateTextTranslation', args, {}, info),
+    updateText: (args, info): Promise<Text | null> => super.delegate('mutation', 'updateText', args, {}, info),
     updateExercise: (args, info): Promise<Exercise | null> => super.delegate('mutation', 'updateExercise', args, {}, info),
     updateExerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('mutation', 'updateExerciseSet', args, {}, info),
     updateWorkoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('mutation', 'updateWorkoutSession', args, {}, info),
+    updateWorkoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('mutation', 'updateWorkoutProgram', args, {}, info),
     deletePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'deletePost', args, {}, info),
     deleteUser: (args, info): Promise<User | null> => super.delegate('mutation', 'deleteUser', args, {}, info),
+    deleteTextTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('mutation', 'deleteTextTranslation', args, {}, info),
+    deleteText: (args, info): Promise<Text | null> => super.delegate('mutation', 'deleteText', args, {}, info),
     deleteExercise: (args, info): Promise<Exercise | null> => super.delegate('mutation', 'deleteExercise', args, {}, info),
     deleteExerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('mutation', 'deleteExerciseSet', args, {}, info),
     deleteWorkoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('mutation', 'deleteWorkoutSession', args, {}, info),
+    deleteWorkoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('mutation', 'deleteWorkoutProgram', args, {}, info),
     upsertPost: (args, info): Promise<Post> => super.delegate('mutation', 'upsertPost', args, {}, info),
     upsertUser: (args, info): Promise<User> => super.delegate('mutation', 'upsertUser', args, {}, info),
+    upsertTextTranslation: (args, info): Promise<TextTranslation> => super.delegate('mutation', 'upsertTextTranslation', args, {}, info),
+    upsertText: (args, info): Promise<Text> => super.delegate('mutation', 'upsertText', args, {}, info),
     upsertExercise: (args, info): Promise<Exercise> => super.delegate('mutation', 'upsertExercise', args, {}, info),
     upsertExerciseSet: (args, info): Promise<ExerciseSet> => super.delegate('mutation', 'upsertExerciseSet', args, {}, info),
     upsertWorkoutSession: (args, info): Promise<WorkoutSession> => super.delegate('mutation', 'upsertWorkoutSession', args, {}, info),
+    upsertWorkoutProgram: (args, info): Promise<WorkoutProgram> => super.delegate('mutation', 'upsertWorkoutProgram', args, {}, info),
     updateManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyPosts', args, {}, info),
     updateManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyUsers', args, {}, info),
+    updateManyTextTranslations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyTextTranslations', args, {}, info),
+    updateManyTexts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyTexts', args, {}, info),
     updateManyExercises: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyExercises', args, {}, info),
     updateManyExerciseSets: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyExerciseSets', args, {}, info),
     updateManyWorkoutSessions: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutSessions', args, {}, info),
+    updateManyWorkoutProgramSettingses: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutProgramSettingses', args, {}, info),
+    updateManyWorkoutRules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutRules', args, {}, info),
+    updateManyWorkoutPrograms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutPrograms', args, {}, info),
     deleteManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyPosts', args, {}, info),
     deleteManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyUsers', args, {}, info),
+    deleteManyTextTranslations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyTextTranslations', args, {}, info),
+    deleteManyTexts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyTexts', args, {}, info),
     deleteManyExercises: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyExercises', args, {}, info),
     deleteManyExerciseSets: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyExerciseSets', args, {}, info),
-    deleteManyWorkoutSessions: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutSessions', args, {}, info)
+    deleteManyWorkoutSessions: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutSessions', args, {}, info),
+    deleteManyWorkoutProgramSettingses: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutProgramSettingses', args, {}, info),
+    deleteManyWorkoutRules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutRules', args, {}, info),
+    deleteManyWorkoutPrograms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutPrograms', args, {}, info)
   }
 
   subscription: Subscription = {
     post: (args, infoOrQuery): Promise<AsyncIterator<PostSubscriptionPayload>> => super.delegateSubscription('post', args, {}, infoOrQuery),
     user: (args, infoOrQuery): Promise<AsyncIterator<UserSubscriptionPayload>> => super.delegateSubscription('user', args, {}, infoOrQuery),
+    textTranslation: (args, infoOrQuery): Promise<AsyncIterator<TextTranslationSubscriptionPayload>> => super.delegateSubscription('textTranslation', args, {}, infoOrQuery),
+    text: (args, infoOrQuery): Promise<AsyncIterator<TextSubscriptionPayload>> => super.delegateSubscription('text', args, {}, infoOrQuery),
     exercise: (args, infoOrQuery): Promise<AsyncIterator<ExerciseSubscriptionPayload>> => super.delegateSubscription('exercise', args, {}, infoOrQuery),
     exerciseSet: (args, infoOrQuery): Promise<AsyncIterator<ExerciseSetSubscriptionPayload>> => super.delegateSubscription('exerciseSet', args, {}, infoOrQuery),
-    workoutSession: (args, infoOrQuery): Promise<AsyncIterator<WorkoutSessionSubscriptionPayload>> => super.delegateSubscription('workoutSession', args, {}, infoOrQuery)
+    workoutSession: (args, infoOrQuery): Promise<AsyncIterator<WorkoutSessionSubscriptionPayload>> => super.delegateSubscription('workoutSession', args, {}, infoOrQuery),
+    workoutProgramSettings: (args, infoOrQuery): Promise<AsyncIterator<WorkoutProgramSettingsSubscriptionPayload>> => super.delegateSubscription('workoutProgramSettings', args, {}, infoOrQuery),
+    workoutRule: (args, infoOrQuery): Promise<AsyncIterator<WorkoutRuleSubscriptionPayload>> => super.delegateSubscription('workoutRule', args, {}, infoOrQuery),
+    workoutProgram: (args, infoOrQuery): Promise<AsyncIterator<WorkoutProgramSubscriptionPayload>> => super.delegateSubscription('workoutProgram', args, {}, infoOrQuery)
   }
 }

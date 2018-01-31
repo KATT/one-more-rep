@@ -9,7 +9,8 @@ type Exercise implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name: String
+  name(where: TextWhereInput): Text!
+  slug: String!
 }
 
 type ExerciseSet implements Node {
@@ -34,12 +35,37 @@ type Post implements Node {
   categoryName: String!
 }
 
+type Text implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  translations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation!]
+}
+
+type TextTranslation implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  text: String!
+}
+
 type User implements Node {
   id: ID!
   email: String!
   password: String!
   name: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+}
+
+type WorkoutProgram implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  settings(where: WorkoutProgramSettingsWhereInput): WorkoutProgramSettings!
+  workouts(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession!]
+  rules(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutRule!]
 }
 
 type WorkoutSession implements Node {
@@ -67,7 +93,27 @@ type AggregatePost {
   count: Int!
 }
 
+type AggregateText {
+  count: Int!
+}
+
+type AggregateTextTranslation {
+  count: Int!
+}
+
 type AggregateUser {
+  count: Int!
+}
+
+type AggregateWorkoutProgram {
+  count: Int!
+}
+
+type AggregateWorkoutProgramSettings {
+  count: Int!
+}
+
+type AggregateWorkoutRule {
   count: Int!
 }
 
@@ -88,7 +134,8 @@ type ExerciseConnection {
 }
 
 input ExerciseCreateInput {
-  name: String
+  slug: String!
+  name: TextCreateOneInput!
 }
 
 input ExerciseCreateOneInput {
@@ -108,15 +155,15 @@ enum ExerciseOrderByInput {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  name_ASC
-  name_DESC
+  slug_ASC
+  slug_DESC
 }
 
 type ExercisePreviousValues {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name: String
+  slug: String!
 }
 
 type ExerciseSetConnection {
@@ -284,7 +331,8 @@ input ExerciseSubscriptionWhereInput {
 }
 
 input ExerciseUpdateInput {
-  name: String
+  slug: String
+  name: TextUpdateOneInput
 }
 
 input ExerciseUpdateOneInput {
@@ -327,24 +375,26 @@ input ExerciseWhereInput {
   updatedAt_lte: DateTime
   updatedAt_gt: DateTime
   updatedAt_gte: DateTime
-  name: String
-  name_not: String
-  name_in: [String!]
-  name_not_in: [String!]
-  name_lt: String
-  name_lte: String
-  name_gt: String
-  name_gte: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
+  slug: String
+  slug_not: String
+  slug_in: [String!]
+  slug_not_in: [String!]
+  slug_lt: String
+  slug_lte: String
+  slug_gt: String
+  slug_gte: String
+  slug_contains: String
+  slug_not_contains: String
+  slug_starts_with: String
+  slug_not_starts_with: String
+  slug_ends_with: String
+  slug_not_ends_with: String
+  name: TextWhereInput
 }
 
 input ExerciseWhereUniqueInput {
   id: ID
+  slug: String
 }
 
 enum IntensityUnit {
@@ -354,39 +404,67 @@ enum IntensityUnit {
   Kilogram
 }
 
+enum Locale {
+  En_GB
+}
+
 scalar Long
 
 type Mutation {
   createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
+  createTextTranslation(data: TextTranslationCreateInput!): TextTranslation!
+  createText(data: TextCreateInput!): Text!
   createExercise(data: ExerciseCreateInput!): Exercise!
   createExerciseSet(data: ExerciseSetCreateInput!): ExerciseSet!
   createWorkoutSession(data: WorkoutSessionCreateInput!): WorkoutSession!
+  createWorkoutProgramSettings(data: WorkoutProgramSettingsCreateInput!): WorkoutProgramSettings!
+  createWorkoutRule(data: WorkoutRuleCreateInput!): WorkoutRule!
+  createWorkoutProgram(data: WorkoutProgramCreateInput!): WorkoutProgram!
   updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateTextTranslation(data: TextTranslationUpdateInput!, where: TextTranslationWhereUniqueInput!): TextTranslation
+  updateText(data: TextUpdateInput!, where: TextWhereUniqueInput!): Text
   updateExercise(data: ExerciseUpdateInput!, where: ExerciseWhereUniqueInput!): Exercise
   updateExerciseSet(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereUniqueInput!): ExerciseSet
   updateWorkoutSession(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  updateWorkoutProgram(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   deletePost(where: PostWhereUniqueInput!): Post
   deleteUser(where: UserWhereUniqueInput!): User
+  deleteTextTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
+  deleteText(where: TextWhereUniqueInput!): Text
   deleteExercise(where: ExerciseWhereUniqueInput!): Exercise
   deleteExerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   deleteWorkoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  deleteWorkoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertTextTranslation(where: TextTranslationWhereUniqueInput!, create: TextTranslationCreateInput!, update: TextTranslationUpdateInput!): TextTranslation!
+  upsertText(where: TextWhereUniqueInput!, create: TextCreateInput!, update: TextUpdateInput!): Text!
   upsertExercise(where: ExerciseWhereUniqueInput!, create: ExerciseCreateInput!, update: ExerciseUpdateInput!): Exercise!
   upsertExerciseSet(where: ExerciseSetWhereUniqueInput!, create: ExerciseSetCreateInput!, update: ExerciseSetUpdateInput!): ExerciseSet!
   upsertWorkoutSession(where: WorkoutSessionWhereUniqueInput!, create: WorkoutSessionCreateInput!, update: WorkoutSessionUpdateInput!): WorkoutSession!
+  upsertWorkoutProgram(where: WorkoutProgramWhereUniqueInput!, create: WorkoutProgramCreateInput!, update: WorkoutProgramUpdateInput!): WorkoutProgram!
   updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  updateManyTextTranslations(data: TextTranslationUpdateInput!, where: TextTranslationWhereInput!): BatchPayload!
+  updateManyTexts(data: TextUpdateInput!, where: TextWhereInput!): BatchPayload!
   updateManyExercises(data: ExerciseUpdateInput!, where: ExerciseWhereInput!): BatchPayload!
   updateManyExerciseSets(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereInput!): BatchPayload!
   updateManyWorkoutSessions(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereInput!): BatchPayload!
+  updateManyWorkoutProgramSettingses(data: WorkoutProgramSettingsUpdateInput!, where: WorkoutProgramSettingsWhereInput!): BatchPayload!
+  updateManyWorkoutRules(data: WorkoutRuleUpdateInput!, where: WorkoutRuleWhereInput!): BatchPayload!
+  updateManyWorkoutPrograms(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereInput!): BatchPayload!
   deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyTextTranslations(where: TextTranslationWhereInput!): BatchPayload!
+  deleteManyTexts(where: TextWhereInput!): BatchPayload!
   deleteManyExercises(where: ExerciseWhereInput!): BatchPayload!
   deleteManyExerciseSets(where: ExerciseSetWhereInput!): BatchPayload!
   deleteManyWorkoutSessions(where: WorkoutSessionWhereInput!): BatchPayload!
+  deleteManyWorkoutProgramSettingses(where: WorkoutProgramSettingsWhereInput!): BatchPayload!
+  deleteManyWorkoutRules(where: WorkoutRuleWhereInput!): BatchPayload!
+  deleteManyWorkoutPrograms(where: WorkoutProgramWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -603,19 +681,32 @@ input PostWhereUniqueInput {
 type Query {
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  textTranslations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation]!
+  texts(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Text]!
   exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise]!
   exerciseSets(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ExerciseSet]!
   workoutSessions(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession]!
+  workoutProgramSettingses(where: WorkoutProgramSettingsWhereInput, orderBy: WorkoutProgramSettingsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgramSettings]!
+  workoutRules(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutRule]!
+  workoutPrograms(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgram]!
   post(where: PostWhereUniqueInput!): Post
   user(where: UserWhereUniqueInput!): User
+  textTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
+  text(where: TextWhereUniqueInput!): Text
   exercise(where: ExerciseWhereUniqueInput!): Exercise
   exerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   workoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
+  workoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  textTranslationsConnection(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextTranslationConnection!
+  textsConnection(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextConnection!
   exercisesConnection(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseConnection!
   exerciseSetsConnection(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseSetConnection!
   workoutSessionsConnection(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutSessionConnection!
+  workoutProgramSettingsesConnection(where: WorkoutProgramSettingsWhereInput, orderBy: WorkoutProgramSettingsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutProgramSettingsConnection!
+  workoutRulesConnection(where: WorkoutRuleWhereInput, orderBy: WorkoutRuleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutRuleConnection!
+  workoutProgramsConnection(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutProgramConnection!
   node(id: ID!): Node
 }
 
@@ -624,15 +715,254 @@ enum RepUnit {
   Mile
   Minute
   Second
+  Repetition
   UntilFailure
 }
 
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  textTranslation(where: TextTranslationSubscriptionWhereInput): TextTranslationSubscriptionPayload
+  text(where: TextSubscriptionWhereInput): TextSubscriptionPayload
   exercise(where: ExerciseSubscriptionWhereInput): ExerciseSubscriptionPayload
   exerciseSet(where: ExerciseSetSubscriptionWhereInput): ExerciseSetSubscriptionPayload
   workoutSession(where: WorkoutSessionSubscriptionWhereInput): WorkoutSessionSubscriptionPayload
+  workoutProgramSettings(where: WorkoutProgramSettingsSubscriptionWhereInput): WorkoutProgramSettingsSubscriptionPayload
+  workoutRule(where: WorkoutRuleSubscriptionWhereInput): WorkoutRuleSubscriptionPayload
+  workoutProgram(where: WorkoutProgramSubscriptionWhereInput): WorkoutProgramSubscriptionPayload
+}
+
+type TextConnection {
+  pageInfo: PageInfo!
+  edges: [TextEdge]!
+  aggregate: AggregateText!
+}
+
+input TextCreateInput {
+  translations: TextTranslationCreateManyInput
+}
+
+input TextCreateOneInput {
+  create: TextCreateInput
+  connect: TextWhereUniqueInput
+}
+
+type TextEdge {
+  node: Text!
+  cursor: String!
+}
+
+enum TextOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type TextPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TextSubscriptionPayload {
+  mutation: MutationType!
+  node: Text
+  updatedFields: [String!]
+  previousValues: TextPreviousValues
+}
+
+input TextSubscriptionWhereInput {
+  AND: [TextSubscriptionWhereInput!]
+  OR: [TextSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: TextWhereInput
+}
+
+type TextTranslationConnection {
+  pageInfo: PageInfo!
+  edges: [TextTranslationEdge]!
+  aggregate: AggregateTextTranslation!
+}
+
+input TextTranslationCreateInput {
+  locale: Locale!
+  text: String!
+}
+
+input TextTranslationCreateManyInput {
+  create: [TextTranslationCreateInput!]
+  connect: [TextTranslationWhereUniqueInput!]
+}
+
+type TextTranslationEdge {
+  node: TextTranslation!
+  cursor: String!
+}
+
+enum TextTranslationOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  locale_ASC
+  locale_DESC
+  text_ASC
+  text_DESC
+}
+
+type TextTranslationPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  text: String!
+}
+
+type TextTranslationSubscriptionPayload {
+  mutation: MutationType!
+  node: TextTranslation
+  updatedFields: [String!]
+  previousValues: TextTranslationPreviousValues
+}
+
+input TextTranslationSubscriptionWhereInput {
+  AND: [TextTranslationSubscriptionWhereInput!]
+  OR: [TextTranslationSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: TextTranslationWhereInput
+}
+
+input TextTranslationUpdateInput {
+  locale: Locale
+  text: String
+}
+
+input TextTranslationUpdateManyInput {
+  create: [TextTranslationCreateInput!]
+  connect: [TextTranslationWhereUniqueInput!]
+  disconnect: [TextTranslationWhereUniqueInput!]
+  delete: [TextTranslationWhereUniqueInput!]
+}
+
+input TextTranslationWhereInput {
+  AND: [TextTranslationWhereInput!]
+  OR: [TextTranslationWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  locale: Locale
+  locale_not: Locale
+  locale_in: [Locale!]
+  locale_not_in: [Locale!]
+  text: String
+  text_not: String
+  text_in: [String!]
+  text_not_in: [String!]
+  text_lt: String
+  text_lte: String
+  text_gt: String
+  text_gte: String
+  text_contains: String
+  text_not_contains: String
+  text_starts_with: String
+  text_not_starts_with: String
+  text_ends_with: String
+  text_not_ends_with: String
+}
+
+input TextTranslationWhereUniqueInput {
+  id: ID
+}
+
+input TextUpdateInput {
+  translations: TextTranslationUpdateManyInput
+}
+
+input TextUpdateOneInput {
+  create: TextCreateInput
+  connect: TextWhereUniqueInput
+  disconnect: TextWhereUniqueInput
+  delete: TextWhereUniqueInput
+}
+
+input TextWhereInput {
+  AND: [TextWhereInput!]
+  OR: [TextWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  translations_every: TextTranslationWhereInput
+  translations_some: TextTranslationWhereInput
+  translations_none: TextTranslationWhereInput
+}
+
+input TextWhereUniqueInput {
+  id: ID
 }
 
 type UserConnection {
@@ -805,6 +1135,297 @@ input UserWhereUniqueInput {
   email: String
 }
 
+enum WeightUnit {
+  Pound
+  Kilogram
+}
+
+type WorkoutProgramConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutProgramEdge]!
+  aggregate: AggregateWorkoutProgram!
+}
+
+input WorkoutProgramCreateInput {
+  name: String!
+  settings: WorkoutProgramSettingsCreateOneInput!
+  workouts: WorkoutSessionCreateManyInput
+  rules: WorkoutRuleCreateManyInput
+}
+
+type WorkoutProgramEdge {
+  node: WorkoutProgram!
+  cursor: String!
+}
+
+enum WorkoutProgramOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  name_ASC
+  name_DESC
+}
+
+type WorkoutProgramPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+}
+
+type WorkoutProgramSettings {
+  weightUnit: WeightUnit!
+}
+
+type WorkoutProgramSettingsConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutProgramSettingsEdge]!
+  aggregate: AggregateWorkoutProgramSettings!
+}
+
+input WorkoutProgramSettingsCreateInput {
+  weightUnit: WeightUnit!
+}
+
+input WorkoutProgramSettingsCreateOneInput {
+  create: WorkoutProgramSettingsCreateInput
+}
+
+type WorkoutProgramSettingsEdge {
+  node: WorkoutProgramSettings!
+  cursor: String!
+}
+
+enum WorkoutProgramSettingsOrderByInput {
+  weightUnit_ASC
+  weightUnit_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type WorkoutProgramSettingsPreviousValues {
+  weightUnit: WeightUnit!
+}
+
+type WorkoutProgramSettingsSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutProgramSettings
+  updatedFields: [String!]
+  previousValues: WorkoutProgramSettingsPreviousValues
+}
+
+input WorkoutProgramSettingsSubscriptionWhereInput {
+  AND: [WorkoutProgramSettingsSubscriptionWhereInput!]
+  OR: [WorkoutProgramSettingsSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutProgramSettingsWhereInput
+}
+
+input WorkoutProgramSettingsUpdateInput {
+  weightUnit: WeightUnit
+}
+
+input WorkoutProgramSettingsUpdateOneInput {
+  create: WorkoutProgramSettingsCreateInput
+}
+
+input WorkoutProgramSettingsWhereInput {
+  AND: [WorkoutProgramSettingsWhereInput!]
+  OR: [WorkoutProgramSettingsWhereInput!]
+  weightUnit: WeightUnit
+  weightUnit_not: WeightUnit
+  weightUnit_in: [WeightUnit!]
+  weightUnit_not_in: [WeightUnit!]
+}
+
+type WorkoutProgramSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutProgram
+  updatedFields: [String!]
+  previousValues: WorkoutProgramPreviousValues
+}
+
+input WorkoutProgramSubscriptionWhereInput {
+  AND: [WorkoutProgramSubscriptionWhereInput!]
+  OR: [WorkoutProgramSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutProgramWhereInput
+}
+
+input WorkoutProgramUpdateInput {
+  name: String
+  settings: WorkoutProgramSettingsUpdateOneInput
+  workouts: WorkoutSessionUpdateManyInput
+  rules: WorkoutRuleUpdateManyInput
+}
+
+input WorkoutProgramWhereInput {
+  AND: [WorkoutProgramWhereInput!]
+  OR: [WorkoutProgramWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  settings: WorkoutProgramSettingsWhereInput
+  workouts_every: WorkoutSessionWhereInput
+  workouts_some: WorkoutSessionWhereInput
+  workouts_none: WorkoutSessionWhereInput
+  rules_every: WorkoutRuleWhereInput
+  rules_some: WorkoutRuleWhereInput
+  rules_none: WorkoutRuleWhereInput
+}
+
+input WorkoutProgramWhereUniqueInput {
+  id: ID
+}
+
+type WorkoutRule {
+  hook: WorkoutRuleHook
+  num: Int!
+  exercise(where: ExerciseWhereInput): Exercise!
+}
+
+type WorkoutRuleConnection {
+  pageInfo: PageInfo!
+  edges: [WorkoutRuleEdge]!
+  aggregate: AggregateWorkoutRule!
+}
+
+input WorkoutRuleCreateInput {
+  hook: WorkoutRuleHook
+  num: Int
+  exercise: ExerciseCreateOneInput!
+}
+
+input WorkoutRuleCreateManyInput {
+  create: [WorkoutRuleCreateInput!]
+}
+
+type WorkoutRuleEdge {
+  node: WorkoutRule!
+  cursor: String!
+}
+
+enum WorkoutRuleHook {
+  AfterSuccessfulSet
+}
+
+enum WorkoutRuleOrderByInput {
+  hook_ASC
+  hook_DESC
+  num_ASC
+  num_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type WorkoutRulePreviousValues {
+  hook: WorkoutRuleHook
+  num: Int!
+}
+
+type WorkoutRuleSubscriptionPayload {
+  mutation: MutationType!
+  node: WorkoutRule
+  updatedFields: [String!]
+  previousValues: WorkoutRulePreviousValues
+}
+
+input WorkoutRuleSubscriptionWhereInput {
+  AND: [WorkoutRuleSubscriptionWhereInput!]
+  OR: [WorkoutRuleSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkoutRuleWhereInput
+}
+
+input WorkoutRuleUpdateInput {
+  hook: WorkoutRuleHook
+  num: Int
+  exercise: ExerciseUpdateOneInput
+}
+
+input WorkoutRuleUpdateManyInput {
+  create: [WorkoutRuleCreateInput!]
+}
+
+input WorkoutRuleWhereInput {
+  AND: [WorkoutRuleWhereInput!]
+  OR: [WorkoutRuleWhereInput!]
+  hook: WorkoutRuleHook
+  hook_not: WorkoutRuleHook
+  hook_in: [WorkoutRuleHook!]
+  hook_not_in: [WorkoutRuleHook!]
+  num: Int
+  num_not: Int
+  num_in: [Int!]
+  num_not_in: [Int!]
+  num_lt: Int
+  num_lte: Int
+  num_gt: Int
+  num_gte: Int
+  exercise: ExerciseWhereInput
+}
+
 type WorkoutSessionConnection {
   pageInfo: PageInfo!
   edges: [WorkoutSessionEdge]!
@@ -814,6 +1435,11 @@ type WorkoutSessionConnection {
 input WorkoutSessionCreateInput {
   name: String!
   sets: ExerciseSetCreateManyInput
+}
+
+input WorkoutSessionCreateManyInput {
+  create: [WorkoutSessionCreateInput!]
+  connect: [WorkoutSessionWhereUniqueInput!]
 }
 
 type WorkoutSessionEdge {
@@ -859,6 +1485,13 @@ input WorkoutSessionSubscriptionWhereInput {
 input WorkoutSessionUpdateInput {
   name: String
   sets: ExerciseSetUpdateManyInput
+}
+
+input WorkoutSessionUpdateManyInput {
+  create: [WorkoutSessionCreateInput!]
+  connect: [WorkoutSessionWhereUniqueInput!]
+  disconnect: [WorkoutSessionWhereUniqueInput!]
+  delete: [WorkoutSessionWhereUniqueInput!]
 }
 
 input WorkoutSessionWhereInput {
