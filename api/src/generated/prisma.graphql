@@ -20,7 +20,7 @@ type ExerciseSet implements Node {
   exercise(where: ExerciseWhereInput): Exercise!
   reps: Int!
   repsUnit: RepUnit!
-  intensity: Int
+  intensity: Float
   intensityUnit: IntensityUnit
 }
 
@@ -175,7 +175,7 @@ type ExerciseSetConnection {
 input ExerciseSetCreateInput {
   reps: Int!
   repsUnit: RepUnit!
-  intensity: Int
+  intensity: Float
   intensityUnit: IntensityUnit
   exercise: ExerciseCreateOneInput!
 }
@@ -213,7 +213,7 @@ type ExerciseSetPreviousValues {
   updatedAt: DateTime!
   reps: Int!
   repsUnit: RepUnit!
-  intensity: Int
+  intensity: Float
   intensityUnit: IntensityUnit
 }
 
@@ -237,7 +237,7 @@ input ExerciseSetSubscriptionWhereInput {
 input ExerciseSetUpdateInput {
   reps: Int
   repsUnit: RepUnit
-  intensity: Int
+  intensity: Float
   intensityUnit: IntensityUnit
   exercise: ExerciseUpdateOneInput
 }
@@ -294,14 +294,14 @@ input ExerciseSetWhereInput {
   repsUnit_not: RepUnit
   repsUnit_in: [RepUnit!]
   repsUnit_not_in: [RepUnit!]
-  intensity: Int
-  intensity_not: Int
-  intensity_in: [Int!]
-  intensity_not_in: [Int!]
-  intensity_lt: Int
-  intensity_lte: Int
-  intensity_gt: Int
-  intensity_gte: Int
+  intensity: Float
+  intensity_not: Float
+  intensity_in: [Float!]
+  intensity_not_in: [Float!]
+  intensity_lt: Float
+  intensity_lte: Float
+  intensity_gt: Float
+  intensity_gte: Float
   intensityUnit: IntensityUnit
   intensityUnit_not: IntensityUnit
   intensityUnit_in: [IntensityUnit!]

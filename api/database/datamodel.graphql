@@ -85,7 +85,7 @@ type ExerciseSet {
   repsUnit: RepUnit!
 
   # 100 / 20
-  intensity: Int
+  intensity: Float
   # kg / KilometrePerHour
   intensityUnit: IntensityUnit
 }
