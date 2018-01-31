@@ -8,7 +8,7 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["tslint --fix --exclude api/src/generated/*.ts", "git add"]
+    "*.{ts,tsx}!api/src/generated/*.ts": ["tslint --fix", "git add"]
   },
   "devDependencies": {
     "husky": "^0.14.3",

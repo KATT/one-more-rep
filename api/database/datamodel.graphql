@@ -44,6 +44,7 @@ enum IntensityUnit {
 
 enum Locale {
   En_GB
+  Sv_SE
 }
 
 type LocalizedStringVariation {

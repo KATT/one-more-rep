@@ -1,8 +1,8 @@
 # import UserWhereInput, User from "./generated/prisma.graphql"
-# import LocalizedStringVariation from "./generated/prisma.graphql"
 # import ExerciseWhereInput from "./generated/prisma.graphql"
 # import ExerciseOrderByInput from "./generated/prisma.graphql"
 # import Locale from "./generated/prisma.graphql"
+# import LocalizedStringVariation from "./generated/prisma.graphql"
 
 type Category {
   name: String!
@@ -45,13 +45,9 @@ type User {
   posts: [Post!]!
 }
 
-type LocalizedStringVariation {
-  string: String!
-  locale: Locale!
-}
-
 type LocalizedStringWithFallback {
   string: String!
+  isFallback: Boolean!
   fallback: LocalizedStringVariation
 }
 
@@ -61,7 +57,7 @@ type Exercise {
   createdAt: DateTime!
   updatedAt: DateTime!
   # 'squat'
-  name_string: LocalizedStringWithFallback!
+  name_t: LocalizedStringWithFallback!
   slug: String!
 }
 
