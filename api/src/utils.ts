@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { Prisma } from './generated/prisma';
+import { Locale, Prisma } from './generated/prisma';
 
 export interface Context {
   db: Prisma;
@@ -17,6 +17,11 @@ export function getUserId(ctx: Context) {
   }
 
   throw new AuthError();
+}
+
+export function getUserLocale(ctx: Context): Locale {
+  // FIXME CHANGEME
+  return 'En_GB';
 }
 
 export class AuthError extends Error {

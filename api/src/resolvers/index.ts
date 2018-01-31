@@ -1,6 +1,6 @@
 import { extractFragmentReplacements } from 'prisma-binding';
 import { Exercise, Locale, LocalizedString, LocalizedStringVariation } from '../generated/prisma';
-import { Context } from '../utils';
+import { Context, getUserLocale } from '../utils';
 import { AuthPayload } from './AuthPayload';
 import { auth } from './Mutation/auth';
 import { post } from './Mutation/post';
@@ -27,8 +27,7 @@ function localize(sourceName: string, fieldName: string) {
       fragment,
       resolve: (source, args, context: Context, info) => {
         const sourceString: LocalizedString = source[fieldName];
-        // FIXME CHANGEME
-        const userSelectedLocale: Locale = 'Sv_SE';
+        const userSelectedLocale: Locale = getUserLocale(context);
 
         const primary = sourceString.variations.find(({ locale }) => locale === userSelectedLocale);
         const fallback = primary ? null : sourceString.variations
