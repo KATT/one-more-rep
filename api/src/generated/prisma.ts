@@ -13,7 +13,7 @@ type Exercise implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name(where: TextWhereInput): Text!
+  name(where: LocalizedStringWhereInput): LocalizedString!
   slug: String!
 }
 
@@ -28,6 +28,21 @@ type ExerciseSet implements Node {
   intensityUnit: IntensityUnit
 }
 
+type LocalizedString implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variations(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedStringVariation!]
+}
+
+type LocalizedStringVariation implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  string: String!
+}
+
 type Post implements Node {
   id: ID!
   createdAt: DateTime!
@@ -37,21 +52,6 @@ type Post implements Node {
   text: String!
   author(where: UserWhereInput): User!
   categoryName: String!
-}
-
-type Text implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  translations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation!]
-}
-
-type TextTranslation implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  locale: Locale!
-  text: String!
 }
 
 type User implements Node {
@@ -93,15 +93,15 @@ type AggregateExerciseSet {
   count: Int!
 }
 
+type AggregateLocalizedString {
+  count: Int!
+}
+
+type AggregateLocalizedStringVariation {
+  count: Int!
+}
+
 type AggregatePost {
-  count: Int!
-}
-
-type AggregateText {
-  count: Int!
-}
-
-type AggregateTextTranslation {
   count: Int!
 }
 
@@ -139,7 +139,7 @@ type ExerciseConnection {
 
 input ExerciseCreateInput {
   slug: String!
-  name: TextCreateOneInput!
+  name: LocalizedStringCreateOneInput!
 }
 
 input ExerciseCreateOneInput {
@@ -336,7 +336,7 @@ input ExerciseSubscriptionWhereInput {
 
 input ExerciseUpdateInput {
   slug: String
-  name: TextUpdateOneInput
+  name: LocalizedStringUpdateOneInput
 }
 
 input ExerciseUpdateOneInput {
@@ -393,7 +393,7 @@ input ExerciseWhereInput {
   slug_not_starts_with: String
   slug_ends_with: String
   slug_not_ends_with: String
-  name: TextWhereInput
+  name: LocalizedStringWhereInput
 }
 
 input ExerciseWhereUniqueInput {
@@ -412,13 +412,246 @@ enum Locale {
   En_GB
 }
 
+type LocalizedStringConnection {
+  pageInfo: PageInfo!
+  edges: [LocalizedStringEdge]!
+  aggregate: AggregateLocalizedString!
+}
+
+input LocalizedStringCreateInput {
+  variations: LocalizedStringVariationCreateManyInput
+}
+
+input LocalizedStringCreateOneInput {
+  create: LocalizedStringCreateInput
+  connect: LocalizedStringWhereUniqueInput
+}
+
+type LocalizedStringEdge {
+  node: LocalizedString!
+  cursor: String!
+}
+
+enum LocalizedStringOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type LocalizedStringPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LocalizedStringSubscriptionPayload {
+  mutation: MutationType!
+  node: LocalizedString
+  updatedFields: [String!]
+  previousValues: LocalizedStringPreviousValues
+}
+
+input LocalizedStringSubscriptionWhereInput {
+  AND: [LocalizedStringSubscriptionWhereInput!]
+  OR: [LocalizedStringSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: LocalizedStringWhereInput
+}
+
+input LocalizedStringUpdateInput {
+  variations: LocalizedStringVariationUpdateManyInput
+}
+
+input LocalizedStringUpdateOneInput {
+  create: LocalizedStringCreateInput
+  connect: LocalizedStringWhereUniqueInput
+  disconnect: LocalizedStringWhereUniqueInput
+  delete: LocalizedStringWhereUniqueInput
+}
+
+type LocalizedStringVariationConnection {
+  pageInfo: PageInfo!
+  edges: [LocalizedStringVariationEdge]!
+  aggregate: AggregateLocalizedStringVariation!
+}
+
+input LocalizedStringVariationCreateInput {
+  locale: Locale!
+  string: String!
+}
+
+input LocalizedStringVariationCreateManyInput {
+  create: [LocalizedStringVariationCreateInput!]
+  connect: [LocalizedStringVariationWhereUniqueInput!]
+}
+
+type LocalizedStringVariationEdge {
+  node: LocalizedStringVariation!
+  cursor: String!
+}
+
+enum LocalizedStringVariationOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  locale_ASC
+  locale_DESC
+  string_ASC
+  string_DESC
+}
+
+type LocalizedStringVariationPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  string: String!
+}
+
+type LocalizedStringVariationSubscriptionPayload {
+  mutation: MutationType!
+  node: LocalizedStringVariation
+  updatedFields: [String!]
+  previousValues: LocalizedStringVariationPreviousValues
+}
+
+input LocalizedStringVariationSubscriptionWhereInput {
+  AND: [LocalizedStringVariationSubscriptionWhereInput!]
+  OR: [LocalizedStringVariationSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: LocalizedStringVariationWhereInput
+}
+
+input LocalizedStringVariationUpdateInput {
+  locale: Locale
+  string: String
+}
+
+input LocalizedStringVariationUpdateManyInput {
+  create: [LocalizedStringVariationCreateInput!]
+  connect: [LocalizedStringVariationWhereUniqueInput!]
+  disconnect: [LocalizedStringVariationWhereUniqueInput!]
+  delete: [LocalizedStringVariationWhereUniqueInput!]
+}
+
+input LocalizedStringVariationWhereInput {
+  AND: [LocalizedStringVariationWhereInput!]
+  OR: [LocalizedStringVariationWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  locale: Locale
+  locale_not: Locale
+  locale_in: [Locale!]
+  locale_not_in: [Locale!]
+  string: String
+  string_not: String
+  string_in: [String!]
+  string_not_in: [String!]
+  string_lt: String
+  string_lte: String
+  string_gt: String
+  string_gte: String
+  string_contains: String
+  string_not_contains: String
+  string_starts_with: String
+  string_not_starts_with: String
+  string_ends_with: String
+  string_not_ends_with: String
+}
+
+input LocalizedStringVariationWhereUniqueInput {
+  id: ID
+}
+
+input LocalizedStringWhereInput {
+  AND: [LocalizedStringWhereInput!]
+  OR: [LocalizedStringWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  variations_every: LocalizedStringVariationWhereInput
+  variations_some: LocalizedStringVariationWhereInput
+  variations_none: LocalizedStringVariationWhereInput
+}
+
+input LocalizedStringWhereUniqueInput {
+  id: ID
+}
+
 scalar Long
 
 type Mutation {
   createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
-  createTextTranslation(data: TextTranslationCreateInput!): TextTranslation!
-  createText(data: TextCreateInput!): Text!
+  createLocalizedStringVariation(data: LocalizedStringVariationCreateInput!): LocalizedStringVariation!
+  createLocalizedString(data: LocalizedStringCreateInput!): LocalizedString!
   createExercise(data: ExerciseCreateInput!): Exercise!
   createExerciseSet(data: ExerciseSetCreateInput!): ExerciseSet!
   createWorkoutSession(data: WorkoutSessionCreateInput!): WorkoutSession!
@@ -427,32 +660,32 @@ type Mutation {
   createWorkoutProgram(data: WorkoutProgramCreateInput!): WorkoutProgram!
   updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateTextTranslation(data: TextTranslationUpdateInput!, where: TextTranslationWhereUniqueInput!): TextTranslation
-  updateText(data: TextUpdateInput!, where: TextWhereUniqueInput!): Text
+  updateLocalizedStringVariation(data: LocalizedStringVariationUpdateInput!, where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  updateLocalizedString(data: LocalizedStringUpdateInput!, where: LocalizedStringWhereUniqueInput!): LocalizedString
   updateExercise(data: ExerciseUpdateInput!, where: ExerciseWhereUniqueInput!): Exercise
   updateExerciseSet(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereUniqueInput!): ExerciseSet
   updateWorkoutSession(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   updateWorkoutProgram(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   deletePost(where: PostWhereUniqueInput!): Post
   deleteUser(where: UserWhereUniqueInput!): User
-  deleteTextTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
-  deleteText(where: TextWhereUniqueInput!): Text
+  deleteLocalizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  deleteLocalizedString(where: LocalizedStringWhereUniqueInput!): LocalizedString
   deleteExercise(where: ExerciseWhereUniqueInput!): Exercise
   deleteExerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   deleteWorkoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   deleteWorkoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  upsertTextTranslation(where: TextTranslationWhereUniqueInput!, create: TextTranslationCreateInput!, update: TextTranslationUpdateInput!): TextTranslation!
-  upsertText(where: TextWhereUniqueInput!, create: TextCreateInput!, update: TextUpdateInput!): Text!
+  upsertLocalizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!, create: LocalizedStringVariationCreateInput!, update: LocalizedStringVariationUpdateInput!): LocalizedStringVariation!
+  upsertLocalizedString(where: LocalizedStringWhereUniqueInput!, create: LocalizedStringCreateInput!, update: LocalizedStringUpdateInput!): LocalizedString!
   upsertExercise(where: ExerciseWhereUniqueInput!, create: ExerciseCreateInput!, update: ExerciseUpdateInput!): Exercise!
   upsertExerciseSet(where: ExerciseSetWhereUniqueInput!, create: ExerciseSetCreateInput!, update: ExerciseSetUpdateInput!): ExerciseSet!
   upsertWorkoutSession(where: WorkoutSessionWhereUniqueInput!, create: WorkoutSessionCreateInput!, update: WorkoutSessionUpdateInput!): WorkoutSession!
   upsertWorkoutProgram(where: WorkoutProgramWhereUniqueInput!, create: WorkoutProgramCreateInput!, update: WorkoutProgramUpdateInput!): WorkoutProgram!
   updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
-  updateManyTextTranslations(data: TextTranslationUpdateInput!, where: TextTranslationWhereInput!): BatchPayload!
-  updateManyTexts(data: TextUpdateInput!, where: TextWhereInput!): BatchPayload!
+  updateManyLocalizedStringVariations(data: LocalizedStringVariationUpdateInput!, where: LocalizedStringVariationWhereInput!): BatchPayload!
+  updateManyLocalizedStrings(data: LocalizedStringUpdateInput!, where: LocalizedStringWhereInput!): BatchPayload!
   updateManyExercises(data: ExerciseUpdateInput!, where: ExerciseWhereInput!): BatchPayload!
   updateManyExerciseSets(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereInput!): BatchPayload!
   updateManyWorkoutSessions(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereInput!): BatchPayload!
@@ -461,8 +694,8 @@ type Mutation {
   updateManyWorkoutPrograms(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereInput!): BatchPayload!
   deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
-  deleteManyTextTranslations(where: TextTranslationWhereInput!): BatchPayload!
-  deleteManyTexts(where: TextWhereInput!): BatchPayload!
+  deleteManyLocalizedStringVariations(where: LocalizedStringVariationWhereInput!): BatchPayload!
+  deleteManyLocalizedStrings(where: LocalizedStringWhereInput!): BatchPayload!
   deleteManyExercises(where: ExerciseWhereInput!): BatchPayload!
   deleteManyExerciseSets(where: ExerciseSetWhereInput!): BatchPayload!
   deleteManyWorkoutSessions(where: WorkoutSessionWhereInput!): BatchPayload!
@@ -685,8 +918,8 @@ input PostWhereUniqueInput {
 type Query {
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  textTranslations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation]!
-  texts(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Text]!
+  localizedStringVariations(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedStringVariation]!
+  localizedStrings(where: LocalizedStringWhereInput, orderBy: LocalizedStringOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedString]!
   exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise]!
   exerciseSets(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ExerciseSet]!
   workoutSessions(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession]!
@@ -695,16 +928,16 @@ type Query {
   workoutPrograms(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgram]!
   post(where: PostWhereUniqueInput!): Post
   user(where: UserWhereUniqueInput!): User
-  textTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
-  text(where: TextWhereUniqueInput!): Text
+  localizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  localizedString(where: LocalizedStringWhereUniqueInput!): LocalizedString
   exercise(where: ExerciseWhereUniqueInput!): Exercise
   exerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   workoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   workoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  textTranslationsConnection(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextTranslationConnection!
-  textsConnection(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextConnection!
+  localizedStringVariationsConnection(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LocalizedStringVariationConnection!
+  localizedStringsConnection(where: LocalizedStringWhereInput, orderBy: LocalizedStringOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LocalizedStringConnection!
   exercisesConnection(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseConnection!
   exerciseSetsConnection(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseSetConnection!
   workoutSessionsConnection(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutSessionConnection!
@@ -726,247 +959,14 @@ enum RepUnit {
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
-  textTranslation(where: TextTranslationSubscriptionWhereInput): TextTranslationSubscriptionPayload
-  text(where: TextSubscriptionWhereInput): TextSubscriptionPayload
+  localizedStringVariation(where: LocalizedStringVariationSubscriptionWhereInput): LocalizedStringVariationSubscriptionPayload
+  localizedString(where: LocalizedStringSubscriptionWhereInput): LocalizedStringSubscriptionPayload
   exercise(where: ExerciseSubscriptionWhereInput): ExerciseSubscriptionPayload
   exerciseSet(where: ExerciseSetSubscriptionWhereInput): ExerciseSetSubscriptionPayload
   workoutSession(where: WorkoutSessionSubscriptionWhereInput): WorkoutSessionSubscriptionPayload
   workoutProgramSettings(where: WorkoutProgramSettingsSubscriptionWhereInput): WorkoutProgramSettingsSubscriptionPayload
   workoutRule(where: WorkoutRuleSubscriptionWhereInput): WorkoutRuleSubscriptionPayload
   workoutProgram(where: WorkoutProgramSubscriptionWhereInput): WorkoutProgramSubscriptionPayload
-}
-
-type TextConnection {
-  pageInfo: PageInfo!
-  edges: [TextEdge]!
-  aggregate: AggregateText!
-}
-
-input TextCreateInput {
-  translations: TextTranslationCreateManyInput
-}
-
-input TextCreateOneInput {
-  create: TextCreateInput
-  connect: TextWhereUniqueInput
-}
-
-type TextEdge {
-  node: Text!
-  cursor: String!
-}
-
-enum TextOrderByInput {
-  id_ASC
-  id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-}
-
-type TextPreviousValues {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type TextSubscriptionPayload {
-  mutation: MutationType!
-  node: Text
-  updatedFields: [String!]
-  previousValues: TextPreviousValues
-}
-
-input TextSubscriptionWhereInput {
-  AND: [TextSubscriptionWhereInput!]
-  OR: [TextSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: TextWhereInput
-}
-
-type TextTranslationConnection {
-  pageInfo: PageInfo!
-  edges: [TextTranslationEdge]!
-  aggregate: AggregateTextTranslation!
-}
-
-input TextTranslationCreateInput {
-  locale: Locale!
-  text: String!
-}
-
-input TextTranslationCreateManyInput {
-  create: [TextTranslationCreateInput!]
-  connect: [TextTranslationWhereUniqueInput!]
-}
-
-type TextTranslationEdge {
-  node: TextTranslation!
-  cursor: String!
-}
-
-enum TextTranslationOrderByInput {
-  id_ASC
-  id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  locale_ASC
-  locale_DESC
-  text_ASC
-  text_DESC
-}
-
-type TextTranslationPreviousValues {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  locale: Locale!
-  text: String!
-}
-
-type TextTranslationSubscriptionPayload {
-  mutation: MutationType!
-  node: TextTranslation
-  updatedFields: [String!]
-  previousValues: TextTranslationPreviousValues
-}
-
-input TextTranslationSubscriptionWhereInput {
-  AND: [TextTranslationSubscriptionWhereInput!]
-  OR: [TextTranslationSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: TextTranslationWhereInput
-}
-
-input TextTranslationUpdateInput {
-  locale: Locale
-  text: String
-}
-
-input TextTranslationUpdateManyInput {
-  create: [TextTranslationCreateInput!]
-  connect: [TextTranslationWhereUniqueInput!]
-  disconnect: [TextTranslationWhereUniqueInput!]
-  delete: [TextTranslationWhereUniqueInput!]
-}
-
-input TextTranslationWhereInput {
-  AND: [TextTranslationWhereInput!]
-  OR: [TextTranslationWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-  updatedAt_not: DateTime
-  updatedAt_in: [DateTime!]
-  updatedAt_not_in: [DateTime!]
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  locale: Locale
-  locale_not: Locale
-  locale_in: [Locale!]
-  locale_not_in: [Locale!]
-  text: String
-  text_not: String
-  text_in: [String!]
-  text_not_in: [String!]
-  text_lt: String
-  text_lte: String
-  text_gt: String
-  text_gte: String
-  text_contains: String
-  text_not_contains: String
-  text_starts_with: String
-  text_not_starts_with: String
-  text_ends_with: String
-  text_not_ends_with: String
-}
-
-input TextTranslationWhereUniqueInput {
-  id: ID
-}
-
-input TextUpdateInput {
-  translations: TextTranslationUpdateManyInput
-}
-
-input TextUpdateOneInput {
-  create: TextCreateInput
-  connect: TextWhereUniqueInput
-  disconnect: TextWhereUniqueInput
-  delete: TextWhereUniqueInput
-}
-
-input TextWhereInput {
-  AND: [TextWhereInput!]
-  OR: [TextWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-  updatedAt_not: DateTime
-  updatedAt_in: [DateTime!]
-  updatedAt_not_in: [DateTime!]
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  translations_every: TextTranslationWhereInput
-  translations_some: TextTranslationWhereInput
-  translations_none: TextTranslationWhereInput
-}
-
-input TextWhereUniqueInput {
-  id: ID
 }
 
 type UserConnection {
@@ -1635,7 +1635,7 @@ export type WeightUnit =
   'Pound' |
   'Kilogram'
 
-export type TextOrderByInput = 
+export type LocalizedStringOrderByInput = 
   'id_ASC' |
   'id_DESC' |
   'createdAt_ASC' |
@@ -1657,7 +1657,7 @@ export type IntensityUnit =
   'Pound' |
   'Kilogram'
 
-export type TextTranslationOrderByInput = 
+export type LocalizedStringVariationOrderByInput = 
   'id_ASC' |
   'id_DESC' |
   'createdAt_ASC' |
@@ -1666,8 +1666,8 @@ export type TextTranslationOrderByInput =
   'updatedAt_DESC' |
   'locale_ASC' |
   'locale_DESC' |
-  'text_ASC' |
-  'text_DESC'
+  'string_ASC' |
+  'string_DESC'
 
 export type WorkoutSessionOrderByInput = 
   'id_ASC' |
@@ -1802,11 +1802,11 @@ export interface PostWhereInput {
   author?: UserWhereInput
 }
 
-export interface TextUpdateOneInput {
-  create?: TextCreateInput
-  connect?: TextWhereUniqueInput
-  disconnect?: TextWhereUniqueInput
-  delete?: TextWhereUniqueInput
+export interface LocalizedStringUpdateOneInput {
+  create?: LocalizedStringCreateInput
+  connect?: LocalizedStringWhereUniqueInput
+  disconnect?: LocalizedStringWhereUniqueInput
+  delete?: LocalizedStringWhereUniqueInput
 }
 
 export interface ExerciseWhereInput {
@@ -1856,12 +1856,12 @@ export interface ExerciseWhereInput {
   slug_not_starts_with?: String
   slug_ends_with?: String
   slug_not_ends_with?: String
-  name?: TextWhereInput
+  name?: LocalizedStringWhereInput
 }
 
 export interface ExerciseUpdateInput {
   slug?: String
-  name?: TextUpdateOneInput
+  name?: LocalizedStringUpdateOneInput
 }
 
 export interface UserSubscriptionWhereInput {
@@ -1874,16 +1874,16 @@ export interface UserSubscriptionWhereInput {
   node?: UserWhereInput
 }
 
-export interface TextTranslationUpdateManyInput {
-  create?: TextTranslationCreateInput[] | TextTranslationCreateInput
-  connect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
-  disconnect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
-  delete?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+export interface LocalizedStringVariationUpdateManyInput {
+  create?: LocalizedStringVariationCreateInput[] | LocalizedStringVariationCreateInput
+  connect?: LocalizedStringVariationWhereUniqueInput[] | LocalizedStringVariationWhereUniqueInput
+  disconnect?: LocalizedStringVariationWhereUniqueInput[] | LocalizedStringVariationWhereUniqueInput
+  delete?: LocalizedStringVariationWhereUniqueInput[] | LocalizedStringVariationWhereUniqueInput
 }
 
-export interface TextWhereInput {
-  AND?: TextWhereInput[] | TextWhereInput
-  OR?: TextWhereInput[] | TextWhereInput
+export interface LocalizedStringWhereInput {
+  AND?: LocalizedStringWhereInput[] | LocalizedStringWhereInput
+  OR?: LocalizedStringWhereInput[] | LocalizedStringWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1914,18 +1914,18 @@ export interface TextWhereInput {
   updatedAt_lte?: DateTime
   updatedAt_gt?: DateTime
   updatedAt_gte?: DateTime
-  translations_every?: TextTranslationWhereInput
-  translations_some?: TextTranslationWhereInput
-  translations_none?: TextTranslationWhereInput
+  variations_every?: LocalizedStringVariationWhereInput
+  variations_some?: LocalizedStringVariationWhereInput
+  variations_none?: LocalizedStringVariationWhereInput
 }
 
-export interface TextUpdateInput {
-  translations?: TextTranslationUpdateManyInput
+export interface LocalizedStringUpdateInput {
+  variations?: LocalizedStringVariationUpdateManyInput
 }
 
-export interface TextTranslationWhereInput {
-  AND?: TextTranslationWhereInput[] | TextTranslationWhereInput
-  OR?: TextTranslationWhereInput[] | TextTranslationWhereInput
+export interface LocalizedStringVariationWhereInput {
+  AND?: LocalizedStringVariationWhereInput[] | LocalizedStringVariationWhereInput
+  OR?: LocalizedStringVariationWhereInput[] | LocalizedStringVariationWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1960,25 +1960,25 @@ export interface TextTranslationWhereInput {
   locale_not?: Locale
   locale_in?: Locale[] | Locale
   locale_not_in?: Locale[] | Locale
-  text?: String
-  text_not?: String
-  text_in?: String[] | String
-  text_not_in?: String[] | String
-  text_lt?: String
-  text_lte?: String
-  text_gt?: String
-  text_gte?: String
-  text_contains?: String
-  text_not_contains?: String
-  text_starts_with?: String
-  text_not_starts_with?: String
-  text_ends_with?: String
-  text_not_ends_with?: String
+  string?: String
+  string_not?: String
+  string_in?: String[] | String
+  string_not_in?: String[] | String
+  string_lt?: String
+  string_lte?: String
+  string_gt?: String
+  string_gte?: String
+  string_contains?: String
+  string_not_contains?: String
+  string_starts_with?: String
+  string_not_starts_with?: String
+  string_ends_with?: String
+  string_not_ends_with?: String
 }
 
-export interface TextTranslationUpdateInput {
+export interface LocalizedStringVariationUpdateInput {
   locale?: Locale
-  text?: String
+  string?: String
 }
 
 export interface WorkoutSessionWhereInput {
@@ -2192,7 +2192,7 @@ export interface UserUpdateWithoutPostsInput {
   data: UserUpdateWithoutPostsDataInput
 }
 
-export interface TextTranslationWhereUniqueInput {
+export interface LocalizedStringVariationWhereUniqueInput {
   id?: ID_Input
 }
 
@@ -2261,14 +2261,14 @@ export interface WorkoutProgramCreateInput {
   rules?: WorkoutRuleCreateManyInput
 }
 
-export interface TextTranslationSubscriptionWhereInput {
-  AND?: TextTranslationSubscriptionWhereInput[] | TextTranslationSubscriptionWhereInput
-  OR?: TextTranslationSubscriptionWhereInput[] | TextTranslationSubscriptionWhereInput
+export interface LocalizedStringVariationSubscriptionWhereInput {
+  AND?: LocalizedStringVariationSubscriptionWhereInput[] | LocalizedStringVariationSubscriptionWhereInput
+  OR?: LocalizedStringVariationSubscriptionWhereInput[] | LocalizedStringVariationSubscriptionWhereInput
   mutation_in?: MutationType[] | MutationType
   updatedFields_contains?: String
   updatedFields_contains_every?: String[] | String
   updatedFields_contains_some?: String[] | String
-  node?: TextTranslationWhereInput
+  node?: LocalizedStringVariationWhereInput
 }
 
 export interface WorkoutRuleCreateInput {
@@ -2277,14 +2277,14 @@ export interface WorkoutRuleCreateInput {
   exercise: ExerciseCreateOneInput
 }
 
-export interface TextSubscriptionWhereInput {
-  AND?: TextSubscriptionWhereInput[] | TextSubscriptionWhereInput
-  OR?: TextSubscriptionWhereInput[] | TextSubscriptionWhereInput
+export interface LocalizedStringSubscriptionWhereInput {
+  AND?: LocalizedStringSubscriptionWhereInput[] | LocalizedStringSubscriptionWhereInput
+  OR?: LocalizedStringSubscriptionWhereInput[] | LocalizedStringSubscriptionWhereInput
   mutation_in?: MutationType[] | MutationType
   updatedFields_contains?: String
   updatedFields_contains_every?: String[] | String
   updatedFields_contains_some?: String[] | String
-  node?: TextWhereInput
+  node?: LocalizedStringWhereInput
 }
 
 export interface WorkoutProgramSettingsCreateInput {
@@ -2330,7 +2330,7 @@ export interface ExerciseCreateOneInput {
   connect?: ExerciseWhereUniqueInput
 }
 
-export interface TextWhereUniqueInput {
+export interface LocalizedStringWhereUniqueInput {
   id?: ID_Input
 }
 
@@ -2518,9 +2518,9 @@ export interface WorkoutProgramSubscriptionWhereInput {
   node?: WorkoutProgramWhereInput
 }
 
-export interface TextTranslationCreateInput {
+export interface LocalizedStringVariationCreateInput {
   locale: Locale
-  text: String
+  string: String
 }
 
 export interface ExerciseUpdateOneInput {
@@ -2530,23 +2530,23 @@ export interface ExerciseUpdateOneInput {
   delete?: ExerciseWhereUniqueInput
 }
 
-export interface TextCreateOneInput {
-  create?: TextCreateInput
-  connect?: TextWhereUniqueInput
+export interface LocalizedStringCreateOneInput {
+  create?: LocalizedStringCreateInput
+  connect?: LocalizedStringWhereUniqueInput
 }
 
 export interface ExerciseCreateInput {
   slug: String
-  name: TextCreateOneInput
+  name: LocalizedStringCreateOneInput
 }
 
-export interface TextTranslationCreateManyInput {
-  create?: TextTranslationCreateInput[] | TextTranslationCreateInput
-  connect?: TextTranslationWhereUniqueInput[] | TextTranslationWhereUniqueInput
+export interface LocalizedStringVariationCreateManyInput {
+  create?: LocalizedStringVariationCreateInput[] | LocalizedStringVariationCreateInput
+  connect?: LocalizedStringVariationWhereUniqueInput[] | LocalizedStringVariationWhereUniqueInput
 }
 
-export interface TextCreateInput {
-  translations?: TextTranslationCreateManyInput
+export interface LocalizedStringCreateInput {
+  variations?: LocalizedStringVariationCreateManyInput
 }
 
 export interface ExerciseSubscriptionWhereInput {
@@ -2711,7 +2711,7 @@ export interface Exercise extends Node {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
-  name: Text
+  name: LocalizedString
   slug: String
 }
 
@@ -2728,8 +2728,8 @@ export interface UserSubscriptionPayload {
   previousValues?: UserPreviousValues
 }
 
-export interface TextEdge {
-  node: Text
+export interface LocalizedStringEdge {
+  node: LocalizedString
   cursor: String
 }
 
@@ -2740,28 +2740,28 @@ export interface UserPreviousValues {
   name: String
 }
 
-export interface AggregateTextTranslation {
+export interface AggregateLocalizedStringVariation {
   count: Int
 }
 
-export interface Text extends Node {
+export interface LocalizedString extends Node {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
-  translations?: TextTranslation[]
+  variations?: LocalizedStringVariation[]
 }
 
-export interface TextTranslationConnection {
+export interface LocalizedStringVariationConnection {
   pageInfo: PageInfo
-  edges: TextTranslationEdge[]
-  aggregate: AggregateTextTranslation
+  edges: LocalizedStringVariationEdge[]
+  aggregate: AggregateLocalizedStringVariation
 }
 
-export interface TextTranslationSubscriptionPayload {
+export interface LocalizedStringVariationSubscriptionPayload {
   mutation: MutationType
-  node?: TextTranslation
+  node?: LocalizedStringVariation
   updatedFields?: String[]
-  previousValues?: TextTranslationPreviousValues
+  previousValues?: LocalizedStringVariationPreviousValues
 }
 
 export interface UserEdge {
@@ -2769,24 +2769,24 @@ export interface UserEdge {
   cursor: String
 }
 
-export interface TextTranslationPreviousValues {
+export interface LocalizedStringVariationPreviousValues {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
   locale: Locale
-  text: String
+  string: String
 }
 
 export interface AggregatePost {
   count: Int
 }
 
-export interface TextTranslation extends Node {
+export interface LocalizedStringVariation extends Node {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
   locale: Locale
-  text: String
+  string: String
 }
 
 export interface PageInfo {
@@ -2796,11 +2796,11 @@ export interface PageInfo {
   endCursor?: String
 }
 
-export interface TextSubscriptionPayload {
+export interface LocalizedStringSubscriptionPayload {
   mutation: MutationType
-  node?: Text
+  node?: LocalizedString
   updatedFields?: String[]
-  previousValues?: TextPreviousValues
+  previousValues?: LocalizedStringPreviousValues
 }
 
 export interface WorkoutProgramConnection {
@@ -2809,7 +2809,7 @@ export interface WorkoutProgramConnection {
   aggregate: AggregateWorkoutProgram
 }
 
-export interface TextPreviousValues {
+export interface LocalizedStringPreviousValues {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
@@ -2852,7 +2852,7 @@ export interface ExercisePreviousValues {
   slug: String
 }
 
-export interface AggregateText {
+export interface AggregateLocalizedString {
   count: Int
 }
 
@@ -2867,8 +2867,8 @@ export interface Post extends Node {
   categoryName: String
 }
 
-export interface TextTranslationEdge {
-  node: TextTranslation
+export interface LocalizedStringVariationEdge {
+  node: LocalizedStringVariation
   cursor: String
 }
 
@@ -2958,10 +2958,10 @@ export interface PostEdge {
   cursor: String
 }
 
-export interface TextConnection {
+export interface LocalizedStringConnection {
   pageInfo: PageInfo
-  edges: TextEdge[]
-  aggregate: AggregateText
+  edges: LocalizedStringEdge[]
+  aggregate: AggregateLocalizedString
 }
 
 export interface AggregateExerciseSet {
@@ -3007,8 +3007,8 @@ export interface Schema {
 export type Query = {
   posts: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Post[]>
   users: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<User[]>
-  textTranslations: (args: { where?: TextTranslationWhereInput, orderBy?: TextTranslationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation[]>
-  texts: (args: { where?: TextWhereInput, orderBy?: TextOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Text[]>
+  localizedStringVariations: (args: { where?: LocalizedStringVariationWhereInput, orderBy?: LocalizedStringVariationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation[]>
+  localizedStrings: (args: { where?: LocalizedStringWhereInput, orderBy?: LocalizedStringOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString[]>
   exercises: (args: { where?: ExerciseWhereInput, orderBy?: ExerciseOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Exercise[]>
   exerciseSets: (args: { where?: ExerciseSetWhereInput, orderBy?: ExerciseSetOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet[]>
   workoutSessions: (args: { where?: WorkoutSessionWhereInput, orderBy?: WorkoutSessionOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession[]>
@@ -3017,16 +3017,16 @@ export type Query = {
   workoutPrograms: (args: { where?: WorkoutProgramWhereInput, orderBy?: WorkoutProgramOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram[]>
   post: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   user: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
-  textTranslation: (args: { where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
-  text: (args: { where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
+  localizedStringVariation: (args: { where: LocalizedStringVariationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation | null>
+  localizedString: (args: { where: LocalizedStringWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString | null>
   exercise: (args: { where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   exerciseSet: (args: { where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   workoutSession: (args: { where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
   workoutProgram: (args: { where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   postsConnection: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<PostConnection>
   usersConnection: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<UserConnection>
-  textTranslationsConnection: (args: { where?: TextTranslationWhereInput, orderBy?: TextTranslationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextTranslationConnection>
-  textsConnection: (args: { where?: TextWhereInput, orderBy?: TextOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<TextConnection>
+  localizedStringVariationsConnection: (args: { where?: LocalizedStringVariationWhereInput, orderBy?: LocalizedStringVariationOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariationConnection>
+  localizedStringsConnection: (args: { where?: LocalizedStringWhereInput, orderBy?: LocalizedStringOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringConnection>
   exercisesConnection: (args: { where?: ExerciseWhereInput, orderBy?: ExerciseOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseConnection>
   exerciseSetsConnection: (args: { where?: ExerciseSetWhereInput, orderBy?: ExerciseSetOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSetConnection>
   workoutSessionsConnection: (args: { where?: WorkoutSessionWhereInput, orderBy?: WorkoutSessionOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSessionConnection>
@@ -3039,8 +3039,8 @@ export type Query = {
 export type Mutation = {
   createPost: (args: { data: PostCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   createUser: (args: { data: UserCreateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
-  createTextTranslation: (args: { data: TextTranslationCreateInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation>
-  createText: (args: { data: TextCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Text>
+  createLocalizedStringVariation: (args: { data: LocalizedStringVariationCreateInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation>
+  createLocalizedString: (args: { data: LocalizedStringCreateInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString>
   createExercise: (args: { data: ExerciseCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise>
   createExerciseSet: (args: { data: ExerciseSetCreateInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet>
   createWorkoutSession: (args: { data: WorkoutSessionCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession>
@@ -3049,32 +3049,32 @@ export type Mutation = {
   createWorkoutProgram: (args: { data: WorkoutProgramCreateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram>
   updatePost: (args: { data: PostUpdateInput, where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   updateUser: (args: { data: UserUpdateInput, where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
-  updateTextTranslation: (args: { data: TextTranslationUpdateInput, where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
-  updateText: (args: { data: TextUpdateInput, where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
+  updateLocalizedStringVariation: (args: { data: LocalizedStringVariationUpdateInput, where: LocalizedStringVariationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation | null>
+  updateLocalizedString: (args: { data: LocalizedStringUpdateInput, where: LocalizedStringWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString | null>
   updateExercise: (args: { data: ExerciseUpdateInput, where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   updateExerciseSet: (args: { data: ExerciseSetUpdateInput, where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   updateWorkoutSession: (args: { data: WorkoutSessionUpdateInput, where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
   updateWorkoutProgram: (args: { data: WorkoutProgramUpdateInput, where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   deletePost: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   deleteUser: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
-  deleteTextTranslation: (args: { where: TextTranslationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation | null>
-  deleteText: (args: { where: TextWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Text | null>
+  deleteLocalizedStringVariation: (args: { where: LocalizedStringVariationWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation | null>
+  deleteLocalizedString: (args: { where: LocalizedStringWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString | null>
   deleteExercise: (args: { where: ExerciseWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise | null>
   deleteExerciseSet: (args: { where: ExerciseSetWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet | null>
   deleteWorkoutSession: (args: { where: WorkoutSessionWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession | null>
   deleteWorkoutProgram: (args: { where: WorkoutProgramWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram | null>
   upsertPost: (args: { where: PostWhereUniqueInput, create: PostCreateInput, update: PostUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   upsertUser: (args: { where: UserWhereUniqueInput, create: UserCreateInput, update: UserUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
-  upsertTextTranslation: (args: { where: TextTranslationWhereUniqueInput, create: TextTranslationCreateInput, update: TextTranslationUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<TextTranslation>
-  upsertText: (args: { where: TextWhereUniqueInput, create: TextCreateInput, update: TextUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Text>
+  upsertLocalizedStringVariation: (args: { where: LocalizedStringVariationWhereUniqueInput, create: LocalizedStringVariationCreateInput, update: LocalizedStringVariationUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedStringVariation>
+  upsertLocalizedString: (args: { where: LocalizedStringWhereUniqueInput, create: LocalizedStringCreateInput, update: LocalizedStringUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<LocalizedString>
   upsertExercise: (args: { where: ExerciseWhereUniqueInput, create: ExerciseCreateInput, update: ExerciseUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Exercise>
   upsertExerciseSet: (args: { where: ExerciseSetWhereUniqueInput, create: ExerciseSetCreateInput, update: ExerciseSetUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<ExerciseSet>
   upsertWorkoutSession: (args: { where: WorkoutSessionWhereUniqueInput, create: WorkoutSessionCreateInput, update: WorkoutSessionUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutSession>
   upsertWorkoutProgram: (args: { where: WorkoutProgramWhereUniqueInput, create: WorkoutProgramCreateInput, update: WorkoutProgramUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<WorkoutProgram>
   updateManyPosts: (args: { data: PostUpdateInput, where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyUsers: (args: { data: UserUpdateInput, where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  updateManyTextTranslations: (args: { data: TextTranslationUpdateInput, where: TextTranslationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  updateManyTexts: (args: { data: TextUpdateInput, where: TextWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyLocalizedStringVariations: (args: { data: LocalizedStringVariationUpdateInput, where: LocalizedStringVariationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyLocalizedStrings: (args: { data: LocalizedStringUpdateInput, where: LocalizedStringWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyExercises: (args: { data: ExerciseUpdateInput, where: ExerciseWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyExerciseSets: (args: { data: ExerciseSetUpdateInput, where: ExerciseSetWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyWorkoutSessions: (args: { data: WorkoutSessionUpdateInput, where: WorkoutSessionWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
@@ -3083,8 +3083,8 @@ export type Mutation = {
   updateManyWorkoutPrograms: (args: { data: WorkoutProgramUpdateInput, where: WorkoutProgramWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyPosts: (args: { where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyUsers: (args: { where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  deleteManyTextTranslations: (args: { where: TextTranslationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  deleteManyTexts: (args: { where: TextWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyLocalizedStringVariations: (args: { where: LocalizedStringVariationWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyLocalizedStrings: (args: { where: LocalizedStringWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyExercises: (args: { where: ExerciseWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyExerciseSets: (args: { where: ExerciseSetWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyWorkoutSessions: (args: { where: WorkoutSessionWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
@@ -3096,8 +3096,8 @@ export type Mutation = {
 export type Subscription = {
   post: (args: { where?: PostSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<PostSubscriptionPayload>>
   user: (args: { where?: UserSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<UserSubscriptionPayload>>
-  textTranslation: (args: { where?: TextTranslationSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<TextTranslationSubscriptionPayload>>
-  text: (args: { where?: TextSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<TextSubscriptionPayload>>
+  localizedStringVariation: (args: { where?: LocalizedStringVariationSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<LocalizedStringVariationSubscriptionPayload>>
+  localizedString: (args: { where?: LocalizedStringSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<LocalizedStringSubscriptionPayload>>
   exercise: (args: { where?: ExerciseSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ExerciseSubscriptionPayload>>
   exerciseSet: (args: { where?: ExerciseSetSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ExerciseSetSubscriptionPayload>>
   workoutSession: (args: { where?: WorkoutSessionSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<WorkoutSessionSubscriptionPayload>>
@@ -3115,8 +3115,8 @@ export class Prisma extends BasePrisma {
   exists = {
     Post: (where: PostWhereInput): Promise<boolean> => super.existsDelegate('query', 'posts', { where }, {}, '{ id }'),
     User: (where: UserWhereInput): Promise<boolean> => super.existsDelegate('query', 'users', { where }, {}, '{ id }'),
-    TextTranslation: (where: TextTranslationWhereInput): Promise<boolean> => super.existsDelegate('query', 'textTranslations', { where }, {}, '{ id }'),
-    Text: (where: TextWhereInput): Promise<boolean> => super.existsDelegate('query', 'texts', { where }, {}, '{ id }'),
+    LocalizedStringVariation: (where: LocalizedStringVariationWhereInput): Promise<boolean> => super.existsDelegate('query', 'localizedStringVariations', { where }, {}, '{ id }'),
+    LocalizedString: (where: LocalizedStringWhereInput): Promise<boolean> => super.existsDelegate('query', 'localizedStrings', { where }, {}, '{ id }'),
     Exercise: (where: ExerciseWhereInput): Promise<boolean> => super.existsDelegate('query', 'exercises', { where }, {}, '{ id }'),
     ExerciseSet: (where: ExerciseSetWhereInput): Promise<boolean> => super.existsDelegate('query', 'exerciseSets', { where }, {}, '{ id }'),
     WorkoutSession: (where: WorkoutSessionWhereInput): Promise<boolean> => super.existsDelegate('query', 'workoutSessions', { where }, {}, '{ id }'),
@@ -3128,8 +3128,8 @@ export class Prisma extends BasePrisma {
   query: Query = {
     posts: (args, info): Promise<Post[]> => super.delegate('query', 'posts', args, {}, info),
     users: (args, info): Promise<User[]> => super.delegate('query', 'users', args, {}, info),
-    textTranslations: (args, info): Promise<TextTranslation[]> => super.delegate('query', 'textTranslations', args, {}, info),
-    texts: (args, info): Promise<Text[]> => super.delegate('query', 'texts', args, {}, info),
+    localizedStringVariations: (args, info): Promise<LocalizedStringVariation[]> => super.delegate('query', 'localizedStringVariations', args, {}, info),
+    localizedStrings: (args, info): Promise<LocalizedString[]> => super.delegate('query', 'localizedStrings', args, {}, info),
     exercises: (args, info): Promise<Exercise[]> => super.delegate('query', 'exercises', args, {}, info),
     exerciseSets: (args, info): Promise<ExerciseSet[]> => super.delegate('query', 'exerciseSets', args, {}, info),
     workoutSessions: (args, info): Promise<WorkoutSession[]> => super.delegate('query', 'workoutSessions', args, {}, info),
@@ -3138,16 +3138,16 @@ export class Prisma extends BasePrisma {
     workoutPrograms: (args, info): Promise<WorkoutProgram[]> => super.delegate('query', 'workoutPrograms', args, {}, info),
     post: (args, info): Promise<Post | null> => super.delegate('query', 'post', args, {}, info),
     user: (args, info): Promise<User | null> => super.delegate('query', 'user', args, {}, info),
-    textTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('query', 'textTranslation', args, {}, info),
-    text: (args, info): Promise<Text | null> => super.delegate('query', 'text', args, {}, info),
+    localizedStringVariation: (args, info): Promise<LocalizedStringVariation | null> => super.delegate('query', 'localizedStringVariation', args, {}, info),
+    localizedString: (args, info): Promise<LocalizedString | null> => super.delegate('query', 'localizedString', args, {}, info),
     exercise: (args, info): Promise<Exercise | null> => super.delegate('query', 'exercise', args, {}, info),
     exerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('query', 'exerciseSet', args, {}, info),
     workoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('query', 'workoutSession', args, {}, info),
     workoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('query', 'workoutProgram', args, {}, info),
     postsConnection: (args, info): Promise<PostConnection> => super.delegate('query', 'postsConnection', args, {}, info),
     usersConnection: (args, info): Promise<UserConnection> => super.delegate('query', 'usersConnection', args, {}, info),
-    textTranslationsConnection: (args, info): Promise<TextTranslationConnection> => super.delegate('query', 'textTranslationsConnection', args, {}, info),
-    textsConnection: (args, info): Promise<TextConnection> => super.delegate('query', 'textsConnection', args, {}, info),
+    localizedStringVariationsConnection: (args, info): Promise<LocalizedStringVariationConnection> => super.delegate('query', 'localizedStringVariationsConnection', args, {}, info),
+    localizedStringsConnection: (args, info): Promise<LocalizedStringConnection> => super.delegate('query', 'localizedStringsConnection', args, {}, info),
     exercisesConnection: (args, info): Promise<ExerciseConnection> => super.delegate('query', 'exercisesConnection', args, {}, info),
     exerciseSetsConnection: (args, info): Promise<ExerciseSetConnection> => super.delegate('query', 'exerciseSetsConnection', args, {}, info),
     workoutSessionsConnection: (args, info): Promise<WorkoutSessionConnection> => super.delegate('query', 'workoutSessionsConnection', args, {}, info),
@@ -3160,8 +3160,8 @@ export class Prisma extends BasePrisma {
   mutation: Mutation = {
     createPost: (args, info): Promise<Post> => super.delegate('mutation', 'createPost', args, {}, info),
     createUser: (args, info): Promise<User> => super.delegate('mutation', 'createUser', args, {}, info),
-    createTextTranslation: (args, info): Promise<TextTranslation> => super.delegate('mutation', 'createTextTranslation', args, {}, info),
-    createText: (args, info): Promise<Text> => super.delegate('mutation', 'createText', args, {}, info),
+    createLocalizedStringVariation: (args, info): Promise<LocalizedStringVariation> => super.delegate('mutation', 'createLocalizedStringVariation', args, {}, info),
+    createLocalizedString: (args, info): Promise<LocalizedString> => super.delegate('mutation', 'createLocalizedString', args, {}, info),
     createExercise: (args, info): Promise<Exercise> => super.delegate('mutation', 'createExercise', args, {}, info),
     createExerciseSet: (args, info): Promise<ExerciseSet> => super.delegate('mutation', 'createExerciseSet', args, {}, info),
     createWorkoutSession: (args, info): Promise<WorkoutSession> => super.delegate('mutation', 'createWorkoutSession', args, {}, info),
@@ -3170,32 +3170,32 @@ export class Prisma extends BasePrisma {
     createWorkoutProgram: (args, info): Promise<WorkoutProgram> => super.delegate('mutation', 'createWorkoutProgram', args, {}, info),
     updatePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'updatePost', args, {}, info),
     updateUser: (args, info): Promise<User | null> => super.delegate('mutation', 'updateUser', args, {}, info),
-    updateTextTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('mutation', 'updateTextTranslation', args, {}, info),
-    updateText: (args, info): Promise<Text | null> => super.delegate('mutation', 'updateText', args, {}, info),
+    updateLocalizedStringVariation: (args, info): Promise<LocalizedStringVariation | null> => super.delegate('mutation', 'updateLocalizedStringVariation', args, {}, info),
+    updateLocalizedString: (args, info): Promise<LocalizedString | null> => super.delegate('mutation', 'updateLocalizedString', args, {}, info),
     updateExercise: (args, info): Promise<Exercise | null> => super.delegate('mutation', 'updateExercise', args, {}, info),
     updateExerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('mutation', 'updateExerciseSet', args, {}, info),
     updateWorkoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('mutation', 'updateWorkoutSession', args, {}, info),
     updateWorkoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('mutation', 'updateWorkoutProgram', args, {}, info),
     deletePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'deletePost', args, {}, info),
     deleteUser: (args, info): Promise<User | null> => super.delegate('mutation', 'deleteUser', args, {}, info),
-    deleteTextTranslation: (args, info): Promise<TextTranslation | null> => super.delegate('mutation', 'deleteTextTranslation', args, {}, info),
-    deleteText: (args, info): Promise<Text | null> => super.delegate('mutation', 'deleteText', args, {}, info),
+    deleteLocalizedStringVariation: (args, info): Promise<LocalizedStringVariation | null> => super.delegate('mutation', 'deleteLocalizedStringVariation', args, {}, info),
+    deleteLocalizedString: (args, info): Promise<LocalizedString | null> => super.delegate('mutation', 'deleteLocalizedString', args, {}, info),
     deleteExercise: (args, info): Promise<Exercise | null> => super.delegate('mutation', 'deleteExercise', args, {}, info),
     deleteExerciseSet: (args, info): Promise<ExerciseSet | null> => super.delegate('mutation', 'deleteExerciseSet', args, {}, info),
     deleteWorkoutSession: (args, info): Promise<WorkoutSession | null> => super.delegate('mutation', 'deleteWorkoutSession', args, {}, info),
     deleteWorkoutProgram: (args, info): Promise<WorkoutProgram | null> => super.delegate('mutation', 'deleteWorkoutProgram', args, {}, info),
     upsertPost: (args, info): Promise<Post> => super.delegate('mutation', 'upsertPost', args, {}, info),
     upsertUser: (args, info): Promise<User> => super.delegate('mutation', 'upsertUser', args, {}, info),
-    upsertTextTranslation: (args, info): Promise<TextTranslation> => super.delegate('mutation', 'upsertTextTranslation', args, {}, info),
-    upsertText: (args, info): Promise<Text> => super.delegate('mutation', 'upsertText', args, {}, info),
+    upsertLocalizedStringVariation: (args, info): Promise<LocalizedStringVariation> => super.delegate('mutation', 'upsertLocalizedStringVariation', args, {}, info),
+    upsertLocalizedString: (args, info): Promise<LocalizedString> => super.delegate('mutation', 'upsertLocalizedString', args, {}, info),
     upsertExercise: (args, info): Promise<Exercise> => super.delegate('mutation', 'upsertExercise', args, {}, info),
     upsertExerciseSet: (args, info): Promise<ExerciseSet> => super.delegate('mutation', 'upsertExerciseSet', args, {}, info),
     upsertWorkoutSession: (args, info): Promise<WorkoutSession> => super.delegate('mutation', 'upsertWorkoutSession', args, {}, info),
     upsertWorkoutProgram: (args, info): Promise<WorkoutProgram> => super.delegate('mutation', 'upsertWorkoutProgram', args, {}, info),
     updateManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyPosts', args, {}, info),
     updateManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyUsers', args, {}, info),
-    updateManyTextTranslations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyTextTranslations', args, {}, info),
-    updateManyTexts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyTexts', args, {}, info),
+    updateManyLocalizedStringVariations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyLocalizedStringVariations', args, {}, info),
+    updateManyLocalizedStrings: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyLocalizedStrings', args, {}, info),
     updateManyExercises: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyExercises', args, {}, info),
     updateManyExerciseSets: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyExerciseSets', args, {}, info),
     updateManyWorkoutSessions: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutSessions', args, {}, info),
@@ -3204,8 +3204,8 @@ export class Prisma extends BasePrisma {
     updateManyWorkoutPrograms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyWorkoutPrograms', args, {}, info),
     deleteManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyPosts', args, {}, info),
     deleteManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyUsers', args, {}, info),
-    deleteManyTextTranslations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyTextTranslations', args, {}, info),
-    deleteManyTexts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyTexts', args, {}, info),
+    deleteManyLocalizedStringVariations: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyLocalizedStringVariations', args, {}, info),
+    deleteManyLocalizedStrings: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyLocalizedStrings', args, {}, info),
     deleteManyExercises: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyExercises', args, {}, info),
     deleteManyExerciseSets: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyExerciseSets', args, {}, info),
     deleteManyWorkoutSessions: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyWorkoutSessions', args, {}, info),
@@ -3217,8 +3217,8 @@ export class Prisma extends BasePrisma {
   subscription: Subscription = {
     post: (args, infoOrQuery): Promise<AsyncIterator<PostSubscriptionPayload>> => super.delegateSubscription('post', args, {}, infoOrQuery),
     user: (args, infoOrQuery): Promise<AsyncIterator<UserSubscriptionPayload>> => super.delegateSubscription('user', args, {}, infoOrQuery),
-    textTranslation: (args, infoOrQuery): Promise<AsyncIterator<TextTranslationSubscriptionPayload>> => super.delegateSubscription('textTranslation', args, {}, infoOrQuery),
-    text: (args, infoOrQuery): Promise<AsyncIterator<TextSubscriptionPayload>> => super.delegateSubscription('text', args, {}, infoOrQuery),
+    localizedStringVariation: (args, infoOrQuery): Promise<AsyncIterator<LocalizedStringVariationSubscriptionPayload>> => super.delegateSubscription('localizedStringVariation', args, {}, infoOrQuery),
+    localizedString: (args, infoOrQuery): Promise<AsyncIterator<LocalizedStringSubscriptionPayload>> => super.delegateSubscription('localizedString', args, {}, infoOrQuery),
     exercise: (args, infoOrQuery): Promise<AsyncIterator<ExerciseSubscriptionPayload>> => super.delegateSubscription('exercise', args, {}, infoOrQuery),
     exerciseSet: (args, infoOrQuery): Promise<AsyncIterator<ExerciseSetSubscriptionPayload>> => super.delegateSubscription('exerciseSet', args, {}, infoOrQuery),
     workoutSession: (args, infoOrQuery): Promise<AsyncIterator<WorkoutSessionSubscriptionPayload>> => super.delegateSubscription('workoutSession', args, {}, infoOrQuery),

@@ -46,21 +46,21 @@ enum Locale {
   En_GB
 }
 
-type TextTranslation {
+type LocalizedStringVariation {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
 
-  # en_GB
+  # En_GB
   locale: Locale!
-  text: String!
+  string: String!
 }
 
-type Text {
+type LocalizedString {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  translations: [TextTranslation!]!
+  variations: [LocalizedStringVariation!]!
 }
 
 type Exercise {
@@ -68,7 +68,7 @@ type Exercise {
   createdAt: DateTime!
   updatedAt: DateTime!
   # 'squat'
-  name: Text!
+  name: LocalizedString!
   slug: String! @unique
 }
 

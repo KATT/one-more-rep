@@ -9,7 +9,7 @@ type Exercise implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  name(where: TextWhereInput): Text!
+  name(where: LocalizedStringWhereInput): LocalizedString!
   slug: String!
 }
 
@@ -24,6 +24,21 @@ type ExerciseSet implements Node {
   intensityUnit: IntensityUnit
 }
 
+type LocalizedString implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variations(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedStringVariation!]
+}
+
+type LocalizedStringVariation implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  string: String!
+}
+
 type Post implements Node {
   id: ID!
   createdAt: DateTime!
@@ -33,21 +48,6 @@ type Post implements Node {
   text: String!
   author(where: UserWhereInput): User!
   categoryName: String!
-}
-
-type Text implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  translations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation!]
-}
-
-type TextTranslation implements Node {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  locale: Locale!
-  text: String!
 }
 
 type User implements Node {
@@ -89,15 +89,15 @@ type AggregateExerciseSet {
   count: Int!
 }
 
+type AggregateLocalizedString {
+  count: Int!
+}
+
+type AggregateLocalizedStringVariation {
+  count: Int!
+}
+
 type AggregatePost {
-  count: Int!
-}
-
-type AggregateText {
-  count: Int!
-}
-
-type AggregateTextTranslation {
   count: Int!
 }
 
@@ -135,7 +135,7 @@ type ExerciseConnection {
 
 input ExerciseCreateInput {
   slug: String!
-  name: TextCreateOneInput!
+  name: LocalizedStringCreateOneInput!
 }
 
 input ExerciseCreateOneInput {
@@ -332,7 +332,7 @@ input ExerciseSubscriptionWhereInput {
 
 input ExerciseUpdateInput {
   slug: String
-  name: TextUpdateOneInput
+  name: LocalizedStringUpdateOneInput
 }
 
 input ExerciseUpdateOneInput {
@@ -389,7 +389,7 @@ input ExerciseWhereInput {
   slug_not_starts_with: String
   slug_ends_with: String
   slug_not_ends_with: String
-  name: TextWhereInput
+  name: LocalizedStringWhereInput
 }
 
 input ExerciseWhereUniqueInput {
@@ -408,13 +408,246 @@ enum Locale {
   En_GB
 }
 
+type LocalizedStringConnection {
+  pageInfo: PageInfo!
+  edges: [LocalizedStringEdge]!
+  aggregate: AggregateLocalizedString!
+}
+
+input LocalizedStringCreateInput {
+  variations: LocalizedStringVariationCreateManyInput
+}
+
+input LocalizedStringCreateOneInput {
+  create: LocalizedStringCreateInput
+  connect: LocalizedStringWhereUniqueInput
+}
+
+type LocalizedStringEdge {
+  node: LocalizedString!
+  cursor: String!
+}
+
+enum LocalizedStringOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type LocalizedStringPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LocalizedStringSubscriptionPayload {
+  mutation: MutationType!
+  node: LocalizedString
+  updatedFields: [String!]
+  previousValues: LocalizedStringPreviousValues
+}
+
+input LocalizedStringSubscriptionWhereInput {
+  AND: [LocalizedStringSubscriptionWhereInput!]
+  OR: [LocalizedStringSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: LocalizedStringWhereInput
+}
+
+input LocalizedStringUpdateInput {
+  variations: LocalizedStringVariationUpdateManyInput
+}
+
+input LocalizedStringUpdateOneInput {
+  create: LocalizedStringCreateInput
+  connect: LocalizedStringWhereUniqueInput
+  disconnect: LocalizedStringWhereUniqueInput
+  delete: LocalizedStringWhereUniqueInput
+}
+
+type LocalizedStringVariationConnection {
+  pageInfo: PageInfo!
+  edges: [LocalizedStringVariationEdge]!
+  aggregate: AggregateLocalizedStringVariation!
+}
+
+input LocalizedStringVariationCreateInput {
+  locale: Locale!
+  string: String!
+}
+
+input LocalizedStringVariationCreateManyInput {
+  create: [LocalizedStringVariationCreateInput!]
+  connect: [LocalizedStringVariationWhereUniqueInput!]
+}
+
+type LocalizedStringVariationEdge {
+  node: LocalizedStringVariation!
+  cursor: String!
+}
+
+enum LocalizedStringVariationOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  locale_ASC
+  locale_DESC
+  string_ASC
+  string_DESC
+}
+
+type LocalizedStringVariationPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  locale: Locale!
+  string: String!
+}
+
+type LocalizedStringVariationSubscriptionPayload {
+  mutation: MutationType!
+  node: LocalizedStringVariation
+  updatedFields: [String!]
+  previousValues: LocalizedStringVariationPreviousValues
+}
+
+input LocalizedStringVariationSubscriptionWhereInput {
+  AND: [LocalizedStringVariationSubscriptionWhereInput!]
+  OR: [LocalizedStringVariationSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: LocalizedStringVariationWhereInput
+}
+
+input LocalizedStringVariationUpdateInput {
+  locale: Locale
+  string: String
+}
+
+input LocalizedStringVariationUpdateManyInput {
+  create: [LocalizedStringVariationCreateInput!]
+  connect: [LocalizedStringVariationWhereUniqueInput!]
+  disconnect: [LocalizedStringVariationWhereUniqueInput!]
+  delete: [LocalizedStringVariationWhereUniqueInput!]
+}
+
+input LocalizedStringVariationWhereInput {
+  AND: [LocalizedStringVariationWhereInput!]
+  OR: [LocalizedStringVariationWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  locale: Locale
+  locale_not: Locale
+  locale_in: [Locale!]
+  locale_not_in: [Locale!]
+  string: String
+  string_not: String
+  string_in: [String!]
+  string_not_in: [String!]
+  string_lt: String
+  string_lte: String
+  string_gt: String
+  string_gte: String
+  string_contains: String
+  string_not_contains: String
+  string_starts_with: String
+  string_not_starts_with: String
+  string_ends_with: String
+  string_not_ends_with: String
+}
+
+input LocalizedStringVariationWhereUniqueInput {
+  id: ID
+}
+
+input LocalizedStringWhereInput {
+  AND: [LocalizedStringWhereInput!]
+  OR: [LocalizedStringWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  variations_every: LocalizedStringVariationWhereInput
+  variations_some: LocalizedStringVariationWhereInput
+  variations_none: LocalizedStringVariationWhereInput
+}
+
+input LocalizedStringWhereUniqueInput {
+  id: ID
+}
+
 scalar Long
 
 type Mutation {
   createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
-  createTextTranslation(data: TextTranslationCreateInput!): TextTranslation!
-  createText(data: TextCreateInput!): Text!
+  createLocalizedStringVariation(data: LocalizedStringVariationCreateInput!): LocalizedStringVariation!
+  createLocalizedString(data: LocalizedStringCreateInput!): LocalizedString!
   createExercise(data: ExerciseCreateInput!): Exercise!
   createExerciseSet(data: ExerciseSetCreateInput!): ExerciseSet!
   createWorkoutSession(data: WorkoutSessionCreateInput!): WorkoutSession!
@@ -423,32 +656,32 @@ type Mutation {
   createWorkoutProgram(data: WorkoutProgramCreateInput!): WorkoutProgram!
   updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  updateTextTranslation(data: TextTranslationUpdateInput!, where: TextTranslationWhereUniqueInput!): TextTranslation
-  updateText(data: TextUpdateInput!, where: TextWhereUniqueInput!): Text
+  updateLocalizedStringVariation(data: LocalizedStringVariationUpdateInput!, where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  updateLocalizedString(data: LocalizedStringUpdateInput!, where: LocalizedStringWhereUniqueInput!): LocalizedString
   updateExercise(data: ExerciseUpdateInput!, where: ExerciseWhereUniqueInput!): Exercise
   updateExerciseSet(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereUniqueInput!): ExerciseSet
   updateWorkoutSession(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   updateWorkoutProgram(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   deletePost(where: PostWhereUniqueInput!): Post
   deleteUser(where: UserWhereUniqueInput!): User
-  deleteTextTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
-  deleteText(where: TextWhereUniqueInput!): Text
+  deleteLocalizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  deleteLocalizedString(where: LocalizedStringWhereUniqueInput!): LocalizedString
   deleteExercise(where: ExerciseWhereUniqueInput!): Exercise
   deleteExerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   deleteWorkoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   deleteWorkoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  upsertTextTranslation(where: TextTranslationWhereUniqueInput!, create: TextTranslationCreateInput!, update: TextTranslationUpdateInput!): TextTranslation!
-  upsertText(where: TextWhereUniqueInput!, create: TextCreateInput!, update: TextUpdateInput!): Text!
+  upsertLocalizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!, create: LocalizedStringVariationCreateInput!, update: LocalizedStringVariationUpdateInput!): LocalizedStringVariation!
+  upsertLocalizedString(where: LocalizedStringWhereUniqueInput!, create: LocalizedStringCreateInput!, update: LocalizedStringUpdateInput!): LocalizedString!
   upsertExercise(where: ExerciseWhereUniqueInput!, create: ExerciseCreateInput!, update: ExerciseUpdateInput!): Exercise!
   upsertExerciseSet(where: ExerciseSetWhereUniqueInput!, create: ExerciseSetCreateInput!, update: ExerciseSetUpdateInput!): ExerciseSet!
   upsertWorkoutSession(where: WorkoutSessionWhereUniqueInput!, create: WorkoutSessionCreateInput!, update: WorkoutSessionUpdateInput!): WorkoutSession!
   upsertWorkoutProgram(where: WorkoutProgramWhereUniqueInput!, create: WorkoutProgramCreateInput!, update: WorkoutProgramUpdateInput!): WorkoutProgram!
   updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
-  updateManyTextTranslations(data: TextTranslationUpdateInput!, where: TextTranslationWhereInput!): BatchPayload!
-  updateManyTexts(data: TextUpdateInput!, where: TextWhereInput!): BatchPayload!
+  updateManyLocalizedStringVariations(data: LocalizedStringVariationUpdateInput!, where: LocalizedStringVariationWhereInput!): BatchPayload!
+  updateManyLocalizedStrings(data: LocalizedStringUpdateInput!, where: LocalizedStringWhereInput!): BatchPayload!
   updateManyExercises(data: ExerciseUpdateInput!, where: ExerciseWhereInput!): BatchPayload!
   updateManyExerciseSets(data: ExerciseSetUpdateInput!, where: ExerciseSetWhereInput!): BatchPayload!
   updateManyWorkoutSessions(data: WorkoutSessionUpdateInput!, where: WorkoutSessionWhereInput!): BatchPayload!
@@ -457,8 +690,8 @@ type Mutation {
   updateManyWorkoutPrograms(data: WorkoutProgramUpdateInput!, where: WorkoutProgramWhereInput!): BatchPayload!
   deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
-  deleteManyTextTranslations(where: TextTranslationWhereInput!): BatchPayload!
-  deleteManyTexts(where: TextWhereInput!): BatchPayload!
+  deleteManyLocalizedStringVariations(where: LocalizedStringVariationWhereInput!): BatchPayload!
+  deleteManyLocalizedStrings(where: LocalizedStringWhereInput!): BatchPayload!
   deleteManyExercises(where: ExerciseWhereInput!): BatchPayload!
   deleteManyExerciseSets(where: ExerciseSetWhereInput!): BatchPayload!
   deleteManyWorkoutSessions(where: WorkoutSessionWhereInput!): BatchPayload!
@@ -681,8 +914,8 @@ input PostWhereUniqueInput {
 type Query {
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  textTranslations(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [TextTranslation]!
-  texts(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Text]!
+  localizedStringVariations(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedStringVariation]!
+  localizedStrings(where: LocalizedStringWhereInput, orderBy: LocalizedStringOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [LocalizedString]!
   exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise]!
   exerciseSets(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [ExerciseSet]!
   workoutSessions(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutSession]!
@@ -691,16 +924,16 @@ type Query {
   workoutPrograms(where: WorkoutProgramWhereInput, orderBy: WorkoutProgramOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkoutProgram]!
   post(where: PostWhereUniqueInput!): Post
   user(where: UserWhereUniqueInput!): User
-  textTranslation(where: TextTranslationWhereUniqueInput!): TextTranslation
-  text(where: TextWhereUniqueInput!): Text
+  localizedStringVariation(where: LocalizedStringVariationWhereUniqueInput!): LocalizedStringVariation
+  localizedString(where: LocalizedStringWhereUniqueInput!): LocalizedString
   exercise(where: ExerciseWhereUniqueInput!): Exercise
   exerciseSet(where: ExerciseSetWhereUniqueInput!): ExerciseSet
   workoutSession(where: WorkoutSessionWhereUniqueInput!): WorkoutSession
   workoutProgram(where: WorkoutProgramWhereUniqueInput!): WorkoutProgram
   postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  textTranslationsConnection(where: TextTranslationWhereInput, orderBy: TextTranslationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextTranslationConnection!
-  textsConnection(where: TextWhereInput, orderBy: TextOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): TextConnection!
+  localizedStringVariationsConnection(where: LocalizedStringVariationWhereInput, orderBy: LocalizedStringVariationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LocalizedStringVariationConnection!
+  localizedStringsConnection(where: LocalizedStringWhereInput, orderBy: LocalizedStringOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LocalizedStringConnection!
   exercisesConnection(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseConnection!
   exerciseSetsConnection(where: ExerciseSetWhereInput, orderBy: ExerciseSetOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ExerciseSetConnection!
   workoutSessionsConnection(where: WorkoutSessionWhereInput, orderBy: WorkoutSessionOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkoutSessionConnection!
@@ -722,247 +955,14 @@ enum RepUnit {
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
-  textTranslation(where: TextTranslationSubscriptionWhereInput): TextTranslationSubscriptionPayload
-  text(where: TextSubscriptionWhereInput): TextSubscriptionPayload
+  localizedStringVariation(where: LocalizedStringVariationSubscriptionWhereInput): LocalizedStringVariationSubscriptionPayload
+  localizedString(where: LocalizedStringSubscriptionWhereInput): LocalizedStringSubscriptionPayload
   exercise(where: ExerciseSubscriptionWhereInput): ExerciseSubscriptionPayload
   exerciseSet(where: ExerciseSetSubscriptionWhereInput): ExerciseSetSubscriptionPayload
   workoutSession(where: WorkoutSessionSubscriptionWhereInput): WorkoutSessionSubscriptionPayload
   workoutProgramSettings(where: WorkoutProgramSettingsSubscriptionWhereInput): WorkoutProgramSettingsSubscriptionPayload
   workoutRule(where: WorkoutRuleSubscriptionWhereInput): WorkoutRuleSubscriptionPayload
   workoutProgram(where: WorkoutProgramSubscriptionWhereInput): WorkoutProgramSubscriptionPayload
-}
-
-type TextConnection {
-  pageInfo: PageInfo!
-  edges: [TextEdge]!
-  aggregate: AggregateText!
-}
-
-input TextCreateInput {
-  translations: TextTranslationCreateManyInput
-}
-
-input TextCreateOneInput {
-  create: TextCreateInput
-  connect: TextWhereUniqueInput
-}
-
-type TextEdge {
-  node: Text!
-  cursor: String!
-}
-
-enum TextOrderByInput {
-  id_ASC
-  id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-}
-
-type TextPreviousValues {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type TextSubscriptionPayload {
-  mutation: MutationType!
-  node: Text
-  updatedFields: [String!]
-  previousValues: TextPreviousValues
-}
-
-input TextSubscriptionWhereInput {
-  AND: [TextSubscriptionWhereInput!]
-  OR: [TextSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: TextWhereInput
-}
-
-type TextTranslationConnection {
-  pageInfo: PageInfo!
-  edges: [TextTranslationEdge]!
-  aggregate: AggregateTextTranslation!
-}
-
-input TextTranslationCreateInput {
-  locale: Locale!
-  text: String!
-}
-
-input TextTranslationCreateManyInput {
-  create: [TextTranslationCreateInput!]
-  connect: [TextTranslationWhereUniqueInput!]
-}
-
-type TextTranslationEdge {
-  node: TextTranslation!
-  cursor: String!
-}
-
-enum TextTranslationOrderByInput {
-  id_ASC
-  id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  locale_ASC
-  locale_DESC
-  text_ASC
-  text_DESC
-}
-
-type TextTranslationPreviousValues {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  locale: Locale!
-  text: String!
-}
-
-type TextTranslationSubscriptionPayload {
-  mutation: MutationType!
-  node: TextTranslation
-  updatedFields: [String!]
-  previousValues: TextTranslationPreviousValues
-}
-
-input TextTranslationSubscriptionWhereInput {
-  AND: [TextTranslationSubscriptionWhereInput!]
-  OR: [TextTranslationSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: TextTranslationWhereInput
-}
-
-input TextTranslationUpdateInput {
-  locale: Locale
-  text: String
-}
-
-input TextTranslationUpdateManyInput {
-  create: [TextTranslationCreateInput!]
-  connect: [TextTranslationWhereUniqueInput!]
-  disconnect: [TextTranslationWhereUniqueInput!]
-  delete: [TextTranslationWhereUniqueInput!]
-}
-
-input TextTranslationWhereInput {
-  AND: [TextTranslationWhereInput!]
-  OR: [TextTranslationWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-  updatedAt_not: DateTime
-  updatedAt_in: [DateTime!]
-  updatedAt_not_in: [DateTime!]
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  locale: Locale
-  locale_not: Locale
-  locale_in: [Locale!]
-  locale_not_in: [Locale!]
-  text: String
-  text_not: String
-  text_in: [String!]
-  text_not_in: [String!]
-  text_lt: String
-  text_lte: String
-  text_gt: String
-  text_gte: String
-  text_contains: String
-  text_not_contains: String
-  text_starts_with: String
-  text_not_starts_with: String
-  text_ends_with: String
-  text_not_ends_with: String
-}
-
-input TextTranslationWhereUniqueInput {
-  id: ID
-}
-
-input TextUpdateInput {
-  translations: TextTranslationUpdateManyInput
-}
-
-input TextUpdateOneInput {
-  create: TextCreateInput
-  connect: TextWhereUniqueInput
-  disconnect: TextWhereUniqueInput
-  delete: TextWhereUniqueInput
-}
-
-input TextWhereInput {
-  AND: [TextWhereInput!]
-  OR: [TextWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-  updatedAt_not: DateTime
-  updatedAt_in: [DateTime!]
-  updatedAt_not_in: [DateTime!]
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  translations_every: TextTranslationWhereInput
-  translations_some: TextTranslationWhereInput
-  translations_none: TextTranslationWhereInput
-}
-
-input TextWhereUniqueInput {
-  id: ID
 }
 
 type UserConnection {

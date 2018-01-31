@@ -3,7 +3,7 @@ mutation {
     data: {
       slug: "squat"
       name: {
-        create: { translations: { create: { locale: En_GB, text: "Squat" } } }
+        create: { variations: { create: { locale: En_GB, string: "Squat" } } }
       }
     }
   ) {
@@ -14,7 +14,7 @@ mutation {
       slug: "deadlift"
       name: {
         create: {
-          translations: { create: { locale: En_GB, text: "Deadlift" } }
+          variations: { create: { locale: En_GB, string: "Deadlift" } }
         }
       }
     }
@@ -26,7 +26,7 @@ mutation {
       slug: "benchpress"
       name: {
         create: {
-          translations: { create: { locale: En_GB, text: "Bench Press" } }
+          variations: { create: { locale: En_GB, string: "Bench Press" } }
         }
       }
     }
@@ -38,7 +38,7 @@ mutation {
       slug: "overheadress"
       name: {
         create: {
-          translations: { create: { locale: En_GB, text: "Overhead Press" } }
+          variations: { create: { locale: En_GB, string: "Overhead Press" } }
         }
       }
     }
@@ -50,7 +50,7 @@ mutation {
       slug: "barbellrow"
       name: {
         create: {
-          translations: { create: { locale: En_GB, text: "Barbell Row" } }
+          variations: { create: { locale: En_GB, string: "Barbell Row" } }
         }
       }
     }

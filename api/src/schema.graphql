@@ -1,4 +1,8 @@
 # import UserWhereInput, User from "./generated/prisma.graphql"
+# import LocalizedStringVariation from "./generated/prisma.graphql"
+# import ExerciseWhereInput from "./generated/prisma.graphql"
+# import ExerciseOrderByInput from "./generated/prisma.graphql"
+# import Locale from "./generated/prisma.graphql"
 
 type Category {
   name: String!
@@ -21,13 +25,6 @@ type Post implements Node {
   category: Category!
 }
 
-type Query {
-  feed: [Post!]!
-  drafts: [Post!]!
-  post(id: ID!): Post!
-  me: User
-}
-
 input UserPostCreateInput {
   isPublished: Boolean
   title: String!
@@ -35,14 +32,6 @@ input UserPostCreateInput {
   categoryName: String!
 }
 
-type Mutation {
-  signup(email: String!, password: String!, name: String!): AuthPayload!
-  login(email: String!, password: String!): AuthPayload!
-  createDraft(title: String!, text: String!): Post!
-  createUserPost(data: UserPostCreateInput): Post!
-  publish(id: ID!): Post!
-  deletePost(id: ID!): Post!
-}
 
 type AuthPayload {
   token: String!
@@ -54,4 +43,43 @@ type User {
   email: String!
   name: String!
   posts: [Post!]!
+}
+
+type LocalizedStringVariation {
+  string: String!
+  locale: Locale!
+}
+
+type LocalizedStringWithFallback {
+  string: String!
+  fallback: LocalizedStringVariation
+}
+
+
+type Exercise {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  # 'squat'
+  name_string: LocalizedStringWithFallback!
+  slug: String!
+}
+
+
+type Query {
+  feed: [Post!]!
+  drafts: [Post!]!
+  post(id: ID!): Post!
+  me: User
+  exercises(where: ExerciseWhereInput, orderBy: ExerciseOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Exercise]!
+}
+
+
+type Mutation {
+  signup(email: String!, password: String!, name: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+  createDraft(title: String!, text: String!): Post!
+  createUserPost(data: UserPostCreateInput): Post!
+  publish(id: ID!): Post!
+  deletePost(id: ID!): Post!
 }
