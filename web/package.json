@@ -22,12 +22,12 @@
   "devDependencies": {
     "@types/graphql": "^0.12.3",
     "@types/isomorphic-fetch": "^0.0.34",
-    "@types/lodash": "^4.14.98",
+    "@types/lodash": "^4.14.99",
     "@types/lodash.flowright": "^3.5.3",
-    "@types/next": "^2.4.5",
+    "@types/next": "^2.4.7",
     "@types/prop-types": "^15.5.2",
-    "@types/react": "^16.0.22",
-    "concurrently": "^3.5.0",
-    "typescript": "^2.6.2"
+    "@types/react": "^16.0.36",
+    "concurrently": "^3.5.1",
+    "typescript": "^2.7.1"
   }
 }
