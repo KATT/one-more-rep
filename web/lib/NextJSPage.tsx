@@ -1,8 +1,10 @@
 import {Component} from 'react';
 
-export default class NextJSPage extends Component<any, any> {
+export default abstract class NextJSPage extends Component<any, any> {
   public displayName?: string;
   public name?: string;
 
-  public getInitialProps: (ctx: any) => Promise<any>;
+  public async getInitialProps(ctx: any): Promise<any> {
+    return {};
+  }
 }

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { ApolloProvider, getDataFromTree } from 'react-apollo';
 import initApollo from './initApollo';
 import NextJSPage from './NextJSPage';
+const isBrowser: boolean = !!(process as any).browser;
 
 // Gets the display name of a JSX component for dev tools
 function getComponentDisplayName(Component: NextJSPage) {
@@ -29,7 +30,7 @@ export default (ComposedComponent: any) => {
 
       // Run all GraphQL queries in the component tree
       // and extract the resulting data
-      if (!process.browser) {
+      if (!isBrowser) {
         const apollo = initApollo();
         // Provide the `url` prop data in case a GraphQL query uses it
         const url = { query: ctx.query, pathname: ctx.pathname};
