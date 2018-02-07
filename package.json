@@ -5,7 +5,8 @@
   "author": "KATT",
   "license": "GPL-3.0",
   "scripts": {
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "postinstall": "cd api && yarn; cd ../web && yarn"
   },
   "lint-staged": {
     "*.{ts,tsx}!api/src/generated/*.ts": ["tslint --fix", "git add"]
