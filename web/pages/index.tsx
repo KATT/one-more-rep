@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import PostList from '../components/PostList';
+import ExerciseList from '../components/ExerciseList';
 import withData from '../lib/withData';
 
 export default withData(() => (
@@ -8,6 +8,6 @@ export default withData(() => (
     <Link href="/about">
       <a>About</a>
     </Link>
-    <PostList />
+    <ExerciseList />
   </div>
 ));

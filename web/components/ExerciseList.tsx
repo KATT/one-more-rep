@@ -1,25 +1,28 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
-const POSTS_PER_PAGE = 10;
+const EXERCISES_PER_PAGE = 10;
 
-function PostList({ data: { loading, error, allPosts, _allPostsMeta }, loadMorePosts }: any) {
-  if (error) { return <div>Error loading posts</div>; }
-  if (allPosts && allPosts.length) {
-    const areMorePosts = allPosts.length < _allPostsMeta.count;
+function ExerciseList({ data: { loading, error, exercises }, loadMoreExercises }: any) {
+  if (error) { return <div>Error loading Exercises</div>; }
+  if (exercises && exercises.length) {
+    const areMoreExercises = true;
     return (
       <section>
         <ul>
-          {allPosts.map((post: any, index: number) =>
-            <li key={post.id}>
+          {exercises.map((exercise: any, index: number) =>
+            <li key={exercise.id}>
               <div>
                 <span>{index + 1}. </span>
-                <a href={post.url}>{post.title}</a>
+                {exercise.name_t.string}: {exercise.slug}
               </div>
             </li>,
           )}
         </ul>
-        {areMorePosts ? <button onClick={() => loadMorePosts()}> {loading ? 'Loading...' : 'Show More'} </button> : ''}
+        {areMoreExercises ?
+          <button onClick={() => loadMoreExercises()}> {
+            loading ? 'Loading...' : 'Show More'
+          } </button> : ''}
         <style jsx>{`
           section {
             padding-bottom: 20px;
@@ -64,47 +67,44 @@ function PostList({ data: { loading, error, allPosts, _allPostsMeta }, loadMoreP
   return <div>Loading</div>;
 }
 
-const allPostsQuery = gql`
-  query allPosts($first: Int!, $skip: Int!) {
-    allPosts(orderBy: createdAt_DESC, first: $first, skip: $skip) {
+const exercisesQuery: any = gql`
+  query exercises($first: Int!, $skip: Int!) {
+    exercises(orderBy: createdAt_DESC, first: $first, skip: $skip) {
       id
-      title
-      votes
-      url
-      createdAt
+      slug
+      name_t {
+        string
+      }
     },
-    _allPostsMeta {
-      count
-    }
   }
 `;
 
 // The `graphql` wrapper executes a GraphQL query and makes the results
-// available on the `data` prop of the wrapped component (PostList)
-export default graphql(allPostsQuery, {
+// available on the `data` prop of the wrapped component (ExerciseList)
+export default graphql(exercisesQuery, {
   options: {
     variables: {
       skip: 0,
-      first: POSTS_PER_PAGE,
+      first: EXERCISES_PER_PAGE,
     },
   },
   props: ({ data }: any) => ({
     data,
-    loadMorePosts: () => {
+    loadMoreExercises: () => {
       return data.fetchMore({
         variables: {
-          skip: data.allPosts.length,
+          skip: data.exercises.length,
         },
         updateQuery: (previousResult: any, { fetchMoreResult }: any) => {
           if (!fetchMoreResult) {
             return previousResult;
           }
           return Object.assign({}, previousResult, {
-            // Append the new posts results to the old one
-            allPosts: [...previousResult.allPosts, ...fetchMoreResult.allPosts],
+            // Append the new Exercises results to the old one
+            exercises: [...previousResult.exercises, ...fetchMoreResult.exercises],
           });
         },
       });
     },
   }),
-})(PostList);
+})(ExerciseList);
