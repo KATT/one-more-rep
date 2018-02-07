@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next -- -p 5000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "now",
+    "alias": "now alias"
   },
   "dependencies": {
     "apollo-client-preset": "^1.0.6",
@@ -29,5 +31,8 @@
     "concurrently": "^3.5.1",
     "@zeit/next-typescript": "0.0.8",
     "typescript": "^2.7.1"
+  },
+  "now": {
+    "alias": ["omr.kattcorp.co.uk", "omr.kattcorp.com"]
   }
 }

@@ -1,1 +1,3 @@
-export default () => <div>About us</div>;
+import Layout from '../components/Layout';
+
+export default () => <Layout>About us</Layout>;
